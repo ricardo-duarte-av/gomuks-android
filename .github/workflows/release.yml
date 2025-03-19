@@ -44,10 +44,10 @@ jobs:
           name: r8-missing-rules
           path: app/build/outputs/mapping/release/missing_rules.txt
 
-      #- name: List all APKs
-      #  run: |
-      #    echo "### Built APKs" >> $GITHUB_STEP_SUMMARY
-      #    find app/ -name "*.apk" | tee -a $GITHUB_STEP_SUMMARY
+      - name: List all APKs
+        run: |
+          echo "### Built APKs" >> $GITHUB_STEP_SUMMARY
+          find app/ -name "*.apk" | tee -a $GITHUB_STEP_SUMMARY
 
       # Upload Artifact Build
       # Noted For Output [main_project_module]/build/outputs/apk/debug/
