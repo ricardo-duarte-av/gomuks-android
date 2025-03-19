@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep Java Beans classes required by SnakeYAML
+-keep class java.beans.** { *; }
+-keep class org.yaml.snakeyaml.** { *; }
