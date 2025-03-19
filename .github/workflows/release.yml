@@ -5,7 +5,7 @@ env:
   main_project_module: pt.aguiarvieira.gomuks
 
   # The name of the Play Store
-  playstore_name: Habitica
+  playstore_name: Gomuks
 
 on:
 
