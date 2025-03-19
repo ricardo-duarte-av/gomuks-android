@@ -37,6 +37,13 @@ jobs:
       - name: Build release APK
         run: ./gradlew clean assemble --stacktrace 
 
+      - name: Upload R8 Missing Rules
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: r8-missing-rules
+          path: app/build/outputs/mapping/release/missing_rules.txt
+
       #- name: List all APKs
       #  run: |
       #    echo "### Built APKs" >> $GITHUB_STEP_SUMMARY
