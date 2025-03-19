@@ -23,3 +23,5 @@
 # Keep Java Beans classes required by SnakeYAML
 -keep class java.beans.** { *; }
 -keep class org.yaml.snakeyaml.** { *; }
+-keep class org.yaml.snakeyaml.** { *; }
+-keep class org.mozilla.gecko.util.DebugConfig { *; }
