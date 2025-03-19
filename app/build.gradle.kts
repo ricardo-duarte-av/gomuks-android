@@ -71,3 +71,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.6.2") // Use the latest version
     implementation("org.snakeyaml:snakeyaml-engine:2.7") // Use latest version
 }
+
+configurations.all {
+    exclude(group = "org.yaml", module = "snakeyaml")
+}
