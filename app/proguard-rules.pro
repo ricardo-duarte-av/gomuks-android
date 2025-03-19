@@ -31,6 +31,8 @@
 -dontwarn org.yaml.snakeyaml.constructor.BaseConstructor
 -dontwarn org.yaml.snakeyaml.constructor.Constructor
 -dontwarn org.yaml.snakeyaml.error.YAMLException
+-dontwarn kotlin.annotations.jvm.MigrationStatus
+-dontwarn kotlin.annotations.jvm.UnderMigration
 -keep class app.gomuks.** { *; }
 -keep class org.mozilla.** { *; }
 -keepclassmembers class * {
