@@ -31,3 +31,8 @@
 -dontwarn org.yaml.snakeyaml.constructor.BaseConstructor
 -dontwarn org.yaml.snakeyaml.constructor.Constructor
 -dontwarn org.yaml.snakeyaml.error.YAMLException
+-keep class app.gomuks.** { *; }
+-keep class org.mozilla.** { *; }
+-keepclassmembers class * {
+    native <methods>;
+}
