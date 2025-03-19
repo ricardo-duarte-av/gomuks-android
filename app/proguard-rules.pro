@@ -25,3 +25,9 @@
 -keep class org.yaml.snakeyaml.** { *; }
 -keep class org.yaml.snakeyaml.** { *; }
 -keep class org.mozilla.gecko.util.DebugConfig { *; }
+-dontwarn org.yaml.snakeyaml.LoaderOptions
+-dontwarn org.yaml.snakeyaml.TypeDescription
+-dontwarn org.yaml.snakeyaml.Yaml
+-dontwarn org.yaml.snakeyaml.constructor.BaseConstructor
+-dontwarn org.yaml.snakeyaml.constructor.Constructor
+-dontwarn org.yaml.snakeyaml.error.YAMLException
