@@ -35,7 +35,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build release APK
-        run: ./gradlew tasks #assembleRelease --stacktrace 
+        run: ./gradlew assemble --stacktrace 
 
       # Upload Artifact Build
       # Noted For Output [main_project_module]/build/outputs/apk/debug/
