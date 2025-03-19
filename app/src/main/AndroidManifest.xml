@@ -22,8 +22,6 @@
         </intent>
     </queries>
     <meta-data
-        android:name="android.app.shortcuts.icon_resource"
-        android:resource="@drawable/ic_launcher_monochrome" 
         android:name="android.app.shortcuts"
         android:resource="@xml/shortcuts"/>
 
