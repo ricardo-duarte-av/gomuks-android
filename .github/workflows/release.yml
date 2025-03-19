@@ -39,7 +39,7 @@ jobs:
 
       - name: Upload R8 Missing Rules
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: r8-missing-rules
           path: app/build/outputs/mapping/release/missing_rules.txt
