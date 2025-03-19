@@ -41,10 +41,10 @@ android {
     }
     splits {
         abi {
-            enable = true
+            isEnable = true // Corrected: 'isEnable' instead of 'enable'
             reset()
-            include("arm64-v8a", "armeabi-v7a") // Choose needed ABIs
-            universalApk = false
+            include("arm64-v8a", "armeabi-v7a") // Only include needed ABIs
+            isUniversalApk = false // Corrected: 'isUniversalApk' instead of 'universalApk'
         }
     }
 }
