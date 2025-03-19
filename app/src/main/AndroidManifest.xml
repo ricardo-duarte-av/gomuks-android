@@ -21,6 +21,9 @@
             <data android:scheme="http" />
         </intent>
     </queries>
+    <meta-data
+        android:name="android.app.shortcuts.icon_resource"
+        android:resource="@drawable/ic_launcher_monochrome" />
 
     <application
         android:allowBackup="true"
