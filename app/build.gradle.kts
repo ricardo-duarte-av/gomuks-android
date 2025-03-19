@@ -20,9 +20,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("releaseSigning") {
+            keyAlias = "habitica"         // Alias of the key in the keystore
+            keyPassword = "12345678"   // Password for the key
+            storeFile = file("./gomuks.keystore")  // Keystore file path
+            storePassword = "12345678"  // Keystore password
+        }
+    } 
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("releaseSigning")
+            isDebuggable = false
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
