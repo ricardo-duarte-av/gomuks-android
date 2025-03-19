@@ -1,0 +1,12 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="main"
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_monochrome"
+        android:shortcutShortLabel="@string/app_name">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="app.gomuks.android"
+            android:targetClass="app.gomuks.android.MainActivity" />
+    </shortcut>
+</shortcuts>
