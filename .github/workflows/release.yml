@@ -37,6 +37,11 @@ jobs:
       - name: Build release APK
         run: ./gradlew assemble --stacktrace 
 
+      - name: List all APKs
+        run: |
+          echo "### Built APKs" >> $GITHUB_STEP_SUMMARY
+          find app/ -name "*.apk" | tee -a $GITHUB_STEP_SUMMARY
+
       # Upload Artifact Build
       # Noted For Output [main_project_module]/build/outputs/apk/debug/
       #- name: Upload release APK 
