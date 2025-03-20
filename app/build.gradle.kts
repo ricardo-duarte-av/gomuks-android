@@ -83,6 +83,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.6.2") // Use the latest version
     implementation("org.snakeyaml:snakeyaml-engine:2.7") // Use latest version
     implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.12.0")
 }
 
 configurations.all {
