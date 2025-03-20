@@ -121,6 +121,12 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.decorView.systemUiVisibility = (
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            //or View.SYSTEM_UI_FLAG_FULLSCREEN
+            //or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        )
+        
         super.onCreate(savedInstanceState)
         initSharedPref()
         createNotificationChannels(this)
@@ -195,6 +201,17 @@ class MainActivity : ComponentActivity() {
         Log.i(LOGTAG, "Initialization complete (loaded saved state: ${parcel != null})")
     }
 
+    
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                //or View.SYSTEM_UI_FLAG_FULLSCREEN
+                //or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            )
+        }
+    }
     override fun onStart() {
         super.onStart()
         Log.i(LOGTAG, "onStart")
