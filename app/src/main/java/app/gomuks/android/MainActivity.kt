@@ -4,11 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Base64
 import android.util.Log
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -121,14 +125,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun hideSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // For API 30+ (Android 11 and newer)
+            window.insetsController?.hide(WindowInsets.Type.systemBars())
+        } else {
+            // For API < 30 (Older Android versions)
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            )
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.decorView.systemUiVisibility = (
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        //window.decorView.systemUiVisibility = (
+        //    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             //or View.SYSTEM_UI_FLAG_FULLSCREEN
             //or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        )
+        //)
         
         super.onCreate(savedInstanceState)
+        hideSystemUI() // Call the function when activity starts
         initSharedPref()
         createNotificationChannels(this)
         view = GeckoView(this)
@@ -206,13 +226,10 @@ class MainActivity : ComponentActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                //or View.SYSTEM_UI_FLAG_FULLSCREEN
-                //or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            )
+            hideSystemUI()
         }
     }
+    
     override fun onStart() {
         super.onStart()
         Log.i(LOGTAG, "onStart")
