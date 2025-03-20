@@ -141,11 +141,13 @@ class MainActivity : ComponentActivity() {
         
         hideSystemUI()
         // Listen for UI visibility changes and reapply fullscreen
-        window.decorView.setOnSystemUiVisibilityChangeListener {
-            hideSystemUI()
+        // Force fullscreen mode
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    
+        window?.decorView?.windowInsetsController?.let { controller ->
+            controller.hide(WindowInsets.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
-        // Ensure the window is set up before hiding system UI
-        window.setDecorFitsSystemWindows(false)
         
         initSharedPref()
         createNotificationChannels(this)
