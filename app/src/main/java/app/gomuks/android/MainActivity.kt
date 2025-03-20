@@ -127,15 +127,15 @@ class MainActivity : ComponentActivity() {
 
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // For API 30+ (Android 11 and newer)
+            // API 30+ (Android 11 and newer)
             window.insetsController?.hide(WindowInsets.Type.systemBars())
         } else {
-            // For API < 30 (Older Android versions)
+            // API < 30 (Older Android versions)
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+                or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
             )
         }
     }
@@ -148,7 +148,10 @@ class MainActivity : ComponentActivity() {
         //)
         
         super.onCreate(savedInstanceState)
-        hideSystemUI() // Call the function when activity starts
+        
+        // Ensure the window is set up before hiding system UI
+        window.setDecorFitsSystemWindows(false)
+        
         initSharedPref()
         createNotificationChannels(this)
         view = GeckoView(this)
@@ -228,7 +231,7 @@ class MainActivity : ComponentActivity() {
         if (hasFocus) {
             hideSystemUI()
         }
-    }
+
     
     override fun onStart() {
         super.onStart()
