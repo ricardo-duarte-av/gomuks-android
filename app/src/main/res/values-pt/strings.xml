@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Gomuks Android</string>
+
+    <string name="server_url">URL Servidor</string>
+    <string name="connect">Ligar</string>
+    <string name="url_app_chooser_title">Em que app abrir o link?</string>
+    <string name="server_load_error">Falha ao carregar servidor</string>
+    <string name="no_credentials_found_error">Credenciais não encontradas/string>
+    <string name="authentication_failed_error">Falha de autenticação</string>
+    <string name="not_gomuks_error">O URL fornecido não é uma instancia Gomuks</string>
+
+    <string name="preference_file_key">app.gomuks.android.server_settings</string>
+    <string name="server_url_key">server_url</string>
+    <string name="device_id_key">device_uuid</string>
+    <string name="push_token_key">push_token</string>
+    <string name="push_enc_key">gomuks_push_encryption_key</string>
+    <string name="username_key">username</string>
+    <string name="password_key">password</string>
+    <string name="pref_enc_key_name">gomuks_preference_encryption_key</string>
+
+    <string name="notification_channel_silent">Notificações silenciosas</string>
+    <string name="notification_channel_noisy">Notificações barulhentas</string>
+
+    <!-- BasicGeckoViewPrompt strings -->
+    <string name="username">Utilizador</string>
+    <string name="password">Password</string>
+    <string name="clear_field">Limpar</string>
+
+    <string name="cancel">Cancelar</string>
+    <string name="wait">Esperar</string>
+    <string name="stop">Parar</string>
+
+    <string name="before_unload_message">Esta pagina está a confirmar que pretende sair - dados que introduziu não serão guardados</string>
+    <string name="before_unload_title">Tem a certeza?</string>
+    <string name="before_unload_leave_page">Sair da pagina</string>
+    <string name="before_unload_stay">Ficar na pagina</string>
+
+    <string name="repost_confirm_message">To display this page, GeckoView must send information that will repeat any action (such as a search or order confirmation) that was performed earlier.</string>
+    <string name="repost_confirm_title">Are you sure?</string>
+    <string name="repost_confirm_resend">Resend</string>
+    <string name="repost_confirm_cancel">Cancel</string>
+</resources>
