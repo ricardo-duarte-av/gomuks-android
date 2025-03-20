@@ -84,6 +84,7 @@ dependencies {
     implementation("org.snakeyaml:snakeyaml-engine:2.7") // Use latest version
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core:1.8.0") // Add the core library for NotificationCompat
 }
 
 configurations.all {
