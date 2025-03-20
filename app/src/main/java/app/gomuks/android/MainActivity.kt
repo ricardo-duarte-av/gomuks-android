@@ -231,6 +231,7 @@ class MainActivity : ComponentActivity() {
         if (hasFocus) {
             hideSystemUI()
         }
+    }
 
     
     override fun onStart() {
