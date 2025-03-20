@@ -1,0 +1,4 @@
+<style name="Theme.YourApp.FullScreen" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+</style>
