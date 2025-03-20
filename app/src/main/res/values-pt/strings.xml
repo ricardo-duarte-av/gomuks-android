@@ -5,7 +5,7 @@
     <string name="connect">Ligar</string>
     <string name="url_app_chooser_title">Em que app abrir o link?</string>
     <string name="server_load_error">Falha ao carregar servidor</string>
-    <string name="no_credentials_found_error">Credenciais não encontradas/string>
+    <string name="no_credentials_found_error">Credenciais não encontradas</string>
     <string name="authentication_failed_error">Falha de autenticação</string>
     <string name="not_gomuks_error">O URL fornecido não é uma instancia Gomuks</string>
 
