@@ -172,13 +172,16 @@ class MainActivity : ComponentActivity() {
         session.open(runtime)
         view.setSession(session)
 
+        private lateinit var geckoSession: GeckoSession
+        
+
         // Evaluate JavaScript to define the geckoCallback function
-        session.evaluate("window.geckoCallback = function(message) { console.log(message); }")
+        GeckoSession.evaluate("window.geckoCallback = function(message) { console.log(message); }")
 
 
         // Setup WebPush handling by adding a GeckoSessionListener
-        session.addSessionListener(object : session.SessionListener {
-            override fun onMessageReceived(session: session, message: String) {
+        GeckoSession.addSessionListener(object : GeckoSession.SessionListener {
+            override fun onMessageReceived(session: GeckoSession, message: String) {
                 // You could process the message here and forward it to the notification system
                 if (message.startsWith("pushMessage:")) {
                     val pushMessage = message.substring("pushMessage:".length)
