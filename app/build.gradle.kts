@@ -85,7 +85,6 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.core:core:1.8.0") // Add the core library for NotificationCompat
-    implementation("org.mozilla.geckoview:geckoview:92.0.2021090601") // Use the correct version of GeckoView
 }
 
 configurations.all {
