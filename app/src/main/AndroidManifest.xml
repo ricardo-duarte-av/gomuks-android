@@ -21,9 +21,6 @@
             <data android:scheme="http" />
         </intent>
     </queries>
-    <meta-data
-        android:name="android.app.shortcuts"
-        android:resource="@xml/shortcuts"/>
 
     <application
         android:allowBackup="true"
