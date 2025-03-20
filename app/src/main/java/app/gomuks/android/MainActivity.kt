@@ -137,6 +137,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun showPushNotification(message: String) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notification = NotificationCompat.Builder(this, "gecko_push_channel")
+            .setContentTitle("WebPush Notification")
+            .setContentText(message)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        notificationManager.notify(1, notification)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -157,6 +169,21 @@ class MainActivity : ComponentActivity() {
         val runtime = getRuntime(this)
         session.open(runtime)
         view.setSession(session)
+
+        // Evaluate JavaScript to define the geckoCallback function
+        session.evaluate("window.geckoCallback = function(message) { console.log(message); }")
+
+
+        // Setup WebPush handling by adding a GeckoSessionListener
+        session.addSessionListener(object : GeckoSession.SessionListener {
+            override fun onMessageReceived(session: GeckoSession, message: String) {
+                // You could process the message here and forward it to the notification system
+                if (message.startsWith("pushMessage:")) {
+                    val pushMessage = message.substring("pushMessage:".length)
+                    showPushNotification(pushMessage)
+                }
+            }
+        })
 
         File(cacheDir, "upload").mkdirs()
 
