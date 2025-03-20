@@ -127,10 +127,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun hideSystemUI() {
-        window.insetsController?.let { controller ->
-            controller.hide(WindowInsets.Type.systemBars())
-            controller.systemBarsBehavior = 
-                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        val decorView = window?.decorView ?: return // Ensure decorView is not null
+    
+        val controller = decorView.windowInsetsController
+        controller?.let {
+            it.hide(WindowInsets.Type.systemBars())
+            it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     }
 
