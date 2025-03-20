@@ -131,7 +131,7 @@ class MainActivity : ComponentActivity() {
     
         val controller = decorView.windowInsetsController
         controller?.let {
-            it.hide(WindowInsets.Type.systemBars())
+            it.hide(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
             it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     }
