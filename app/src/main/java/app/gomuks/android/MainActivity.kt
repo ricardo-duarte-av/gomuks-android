@@ -177,8 +177,8 @@ class MainActivity : ComponentActivity() {
 
 
         // Setup WebPush handling by adding a GeckoSessionListener
-        session.addSessionListener(object : GeckoSession.SessionListener {
-            override fun onMessageReceived(session: GeckoSession, message: String) {
+        session.addSessionListener(object : session.SessionListener {
+            override fun onMessageReceived(session: session, message: String) {
                 // You could process the message here and forward it to the notification system
                 if (message.startsWith("pushMessage:")) {
                     val pushMessage = message.substring("pushMessage:".length)
