@@ -19,29 +19,37 @@ import kotlin.time.TimeSource
 //    }
 //}
 
-// Modify MessageDelegate to handle notification events
-class MessageDelegate(private val activity: MainActivity) : WebExtension.MessageDelegate {
-    override fun onMessage(message: Any, sender: WebExtension.MessageSender): Any? {
-        Log.d("Gomuks/MessageDelegate", "Got message: $message")
-        
-        val map = message as? Map<*, *> ?: return null
-        val type = map["type"] as? String ?: return null
+// In your MessageDelegate class:
+override fun onMessage(message: Any, sender: WebExtension.MessageSender): GeckoResult<Any>? {
+    Log.d("Gomuks/MessageDelegate", "Got message: $message")
+    
+    if (message !is JSONObject) {
+        return GeckoResult.fromValue(null)
+    }
+    
+    try {
+        val type = message.optString("type")
         
         when (type) {
             "notification" -> {
-                val title = map["title"] as? String ?: "New message"
-                val body = map["body"] as? String ?: ""
-                val roomId = map["roomId"] as? String
-                val isCall = map["isCall"] as? Boolean ?: false
+                val title = message.optString("title", "New message")
+                val body = message.optString("body", "")
+                val roomId = message.optString("roomId", null)
+                val isCall = message.optBoolean("isCall", false)
                 
                 activity.showNotification(title, body, roomId, isCall)
-                return mapOf("success" to true)
+                
+                val result = JSONObject()
+                result.put("success", true)
+                return GeckoResult.fromValue(result)
             }
             // Handle other message types...
         }
-        
-        return null
+    } catch (e: Exception) {
+        Log.e("Gomuks/MessageDelegate", "Error processing message", e)
     }
+    
+    return GeckoResult.fromValue(null)
 }
 
 class PortDelegate(private val activity: MainActivity) : WebExtension.PortDelegate {
