@@ -7,15 +7,40 @@ import org.mozilla.geckoview.WebExtension
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.TimeSource
 
-class MessageDelegate(private val activity: MainActivity) : WebExtension.MessageDelegate {
-    companion object {
-        private const val LOGTAG = "Gomuks/MessageDelegate"
-    }
+//class MessageDelegate(private val activity: MainActivity) : WebExtension.MessageDelegate {
+//    companion object {
+//        private const val LOGTAG = "Gomuks/MessageDelegate"
+//    }
 
-    override fun onConnect(port: WebExtension.Port) {
-        port.setDelegate(activity.portDelegate)
-        activity.port = port
-        Log.d(LOGTAG, "Port connected ${port.name}")
+//    override fun onConnect(port: WebExtension.Port) {
+//        port.setDelegate(activity.portDelegate)
+//        activity.port = port
+//        Log.d(LOGTAG, "Port connected ${port.name}")
+//    }
+//}
+
+// Modify MessageDelegate to handle notification events
+class MessageDelegate(private val activity: MainActivity) : WebExtension.MessageDelegate {
+    override fun onMessage(message: Any, sender: WebExtension.MessageSender): Any? {
+        Log.d("Gomuks/MessageDelegate", "Got message: $message")
+        
+        val map = message as? Map<*, *> ?: return null
+        val type = map["type"] as? String ?: return null
+        
+        when (type) {
+            "notification" -> {
+                val title = map["title"] as? String ?: "New message"
+                val body = map["body"] as? String ?: ""
+                val roomId = map["roomId"] as? String
+                val isCall = map["isCall"] as? Boolean ?: false
+                
+                activity.showNotification(title, body, roomId, isCall)
+                return mapOf("success" to true)
+            }
+            // Handle other message types...
+        }
+        
+        return null
     }
 }
 
