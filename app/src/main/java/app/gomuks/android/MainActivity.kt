@@ -141,18 +141,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun showPushNotification(message: String) {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notification = NotificationCompat.Builder(this, "gecko_push_channel")
-            .setContentTitle("WebPush Notification")
-            .setContentText(message)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .build()
-
-        notificationManager.notify(1, notification)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -175,23 +163,6 @@ class MainActivity : ComponentActivity() {
         view.setSession(session)
 
               
-
-        // Evaluate JavaScript to define the geckoCallback function
-        session.evaluateJS("window.geckoCallback = function(message) { console.log(message); }")
-
-        // Load WebExtension (if needed)
-        val extension = runtime.webExtensionController.install("file:///android_asset/your_extension.xpi")
-
-
-        // Setup WebPush handling by adding a GeckoSessionListener
-        runtime.webExtensionController.setMessageDelegate(
-            object : WebExtension.MessageDelegate {
-                override fun onMessage(extension: WebExtension, message: Any, port: WebExtension.Port?) {
-                    Log.d("GeckoView", "Received message: $message")
-                }
-            },
-            "gecko-channel"
-        )
 
         File(cacheDir, "upload").mkdirs()
 
