@@ -7,50 +7,19 @@ import org.mozilla.geckoview.WebExtension
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.TimeSource
 
-//class MessageDelegate(private val activity: MainActivity) : WebExtension.MessageDelegate {
-//    companion object {
-//        private const val LOGTAG = "Gomuks/MessageDelegate"
-//    }
-
-//    override fun onConnect(port: WebExtension.Port) {
-//        port.setDelegate(activity.portDelegate)
-//        activity.port = port
-//        Log.d(LOGTAG, "Port connected ${port.name}")
-//    }
-//}
-
-// In your MessageDelegate class:
-override fun onMessage(message: Any, sender: WebExtension.MessageSender): GeckoResult<Any>? {
-    Log.d("Gomuks/MessageDelegate", "Got message: $message")
-    
-    if (message !is JSONObject) {
-        return GeckoResult.fromValue(null)
+class MessageDelegate(private val activity: MainActivity) : WebExtension.MessageDelegate {
+    companion object {
+        private const val LOGTAG = "Gomuks/MessageDelegate"
     }
-    
-    try {
-        val type = message.optString("type")
-        
-        when (type) {
-            "notification" -> {
-                val title = message.optString("title", "New message")
-                val body = message.optString("body", "")
-                val roomId = message.optString("roomId", null)
-                val isCall = message.optBoolean("isCall", false)
-                
-                activity.showNotification(title, body, roomId, isCall)
-                
-                val result = JSONObject()
-                result.put("success", true)
-                return GeckoResult.fromValue(result)
-            }
-            // Handle other message types...
-        }
-    } catch (e: Exception) {
-        Log.e("Gomuks/MessageDelegate", "Error processing message", e)
+
+    override fun onConnect(port: WebExtension.Port) {
+        port.setDelegate(activity.portDelegate)
+        activity.port = port
+        Log.d(LOGTAG, "Port connected ${port.name}")
     }
-    
-    return GeckoResult.fromValue(null)
 }
+
+
 
 class PortDelegate(private val activity: MainActivity) : WebExtension.PortDelegate {
     companion object {
