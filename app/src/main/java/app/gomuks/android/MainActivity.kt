@@ -83,6 +83,8 @@ class MainActivity : ComponentActivity() {
 
     internal var port: WebExtension.Port? = null
 
+    private lateinit var geckoSession: GeckoSession
+
     private fun initSharedPref() {
         sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         prefEnc = Encryption(getString(R.string.pref_enc_key_name))
@@ -172,23 +174,21 @@ class MainActivity : ComponentActivity() {
         session.open(runtime)
         view.setSession(session)
 
-        private lateinit var geckoSession: GeckoSession
-        
+              
 
         // Evaluate JavaScript to define the geckoCallback function
-        GeckoSession.evaluate("window.geckoCallback = function(message) { console.log(message); }")
+        geckoSession.webExtensionController.injectJavaScript("window.geckoCallback = function(message) { console.log(message); }")
 
 
         // Setup WebPush handling by adding a GeckoSessionListener
-        GeckoSession.addSessionListener(object : GeckoSession.SessionListener {
-            override fun onMessageReceived(session: GeckoSession, message: String) {
-                // You could process the message here and forward it to the notification system
-                if (message.startsWith("pushMessage:")) {
-                    val pushMessage = message.substring("pushMessage:".length)
-                    showPushNotification(pushMessage)
+        geckoSession.webExtensionController.setMessageDelegate(
+            object : WebExtension.MessageDelegate {
+                override fun onMessage(nativeApp: WebExtension, message: String) {
+                    Log.d("GeckoView", "Received message: $message")
                 }
-            }
-        })
+            },
+            "gecko-channel"
+        )
 
         File(cacheDir, "upload").mkdirs()
 
