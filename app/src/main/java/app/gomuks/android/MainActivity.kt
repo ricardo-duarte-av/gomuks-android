@@ -177,13 +177,15 @@ class MainActivity : ComponentActivity() {
               
 
         // Evaluate JavaScript to define the geckoCallback function
-        geckoSession.webExtensionController.injectJavaScript("window.geckoCallback = function(message) { console.log(message); }")
+        session.evaluateJavascript("window.geckoCallback = function(message) { console.log(message); }")
 
+        // Load WebExtension (if needed)
+        val extension = runtime.webExtensionController.install(Uri.parse("file:///android_asset/your_extension.xpi"))
 
         // Setup WebPush handling by adding a GeckoSessionListener
-        geckoSession.webExtensionController.setMessageDelegate(
+        session.webExtensionController.setMessageDelegate(
             object : WebExtension.MessageDelegate {
-                override fun onMessage(nativeApp: WebExtension, message: String) {
+                override fun onMessage(extension: WebExtension, message: Any, port: WebExtension.Port?) {
                     Log.d("GeckoView", "Received message: $message")
                 }
             },
