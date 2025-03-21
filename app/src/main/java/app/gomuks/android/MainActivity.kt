@@ -50,22 +50,6 @@ import org.mozilla.geckoview.WebExtension
 import java.io.File
 import java.util.UUID
 
-// Make sure these imports are in your file
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.media.AudioAttributes
-import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
-import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import org.mozilla.geckoview.WebExtension
-
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -104,139 +88,9 @@ class MainActivity : ComponentActivity() {
 
     internal var port: WebExtension.Port? = null
 
-    // Add this function to create notification channels
-    private fun createNotificationChannels(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Message notifications channel
-            val messageChannel = NotificationChannel(
-                CHANNEL_ID_MESSAGE,
-                context.getString(R.string.notification_channel_messages),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = context.getString(R.string.notification_channel_messages_description)
-                enableLights(true)
-                enableVibration(true)
-            }
-            
-            // Call notifications channel with higher importance
-            val callChannel = NotificationChannel(
-                CHANNEL_ID_CALL,
-                context.getString(R.string.notification_channel_calls),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = context.getString(R.string.notification_channel_calls_description)
-                enableLights(true)
-                enableVibration(true)
-                val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-                setSound(soundUri, audioAttributes)
-            }
-            
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(messageChannel)
-            notificationManager.createNotificationChannel(callChannel)
-        }
-    }
+       private lateinit var geckoSession: GeckoSession
 
-    private lateinit var geckoSession: GeckoSession
-
-    // Add showNotification method
-    internal fun showNotification(title: String, content: String, roomId: String? = null, isCall: Boolean = false) {
-        // Create an intent to open the app when notification is tapped
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            
-            // If we have a room ID, create a matrix URI and add it to the intent
-            if (roomId != null) {
-                data = Uri.parse("matrix:r/$roomId")
-            }
-        }
-        
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, 
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        
-        val channelId = if (isCall) CHANNEL_ID_CALL else CHANNEL_ID_MESSAGE
-        
-        val builder = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setPriority(if (isCall) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
-            .setCategory(if (isCall) NotificationCompat.CATEGORY_CALL else NotificationCompat.CATEGORY_MESSAGE)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-        
-        // Set a default notification icon if it exists, or use the app icon
-        try {
-            val notificationIconId = resources.getIdentifier("notification_icon", "drawable", packageName)
-            if (notificationIconId != 0) {
-                builder.setSmallIcon(notificationIconId)
-            } else {
-                builder.setSmallIcon(R.mipmap.ic_launcher)
-            }
-        } catch (e: Exception) {
-            builder.setSmallIcon(R.mipmap.ic_launcher)
-        }
-        
-        // For calls, add answer/decline actions if the icon resources exist
-        if (isCall) {
-            // Answer call intent
-            val answerIntent = Intent(this, CallActionReceiver::class.java).apply {
-                action = "ANSWER_CALL"
-                putExtra("ROOM_ID", roomId)
-            }
-            val answerPendingIntent = PendingIntent.getBroadcast(
-                this, 1, answerIntent, 
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            
-            // Decline call intent
-            val declineIntent = Intent(this, CallActionReceiver::class.java).apply {
-                action = "DECLINE_CALL"
-                putExtra("ROOM_ID", roomId)
-            }
-            val declinePendingIntent = PendingIntent.getBroadcast(
-                this, 2, declineIntent, 
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            
-            try {
-                val answerIconId = resources.getIdentifier("ic_call_answer", "drawable", packageName)
-                val declineIconId = resources.getIdentifier("ic_call_decline", "drawable", packageName)
-                
-                builder.addAction(
-                    if (answerIconId != 0) answerIconId else android.R.drawable.ic_menu_call, 
-                    getString(R.string.answer), 
-                    answerPendingIntent
-                )
-                
-                builder.addAction(
-                    if (declineIconId != 0) declineIconId else android.R.drawable.ic_menu_close_clear_cancel, 
-                    getString(R.string.decline), 
-                    declinePendingIntent
-                )
-                
-                builder.setFullScreenIntent(pendingIntent, true)
-            } catch (e: Exception) {
-                Log.e(LOGTAG, "Failed to add call actions", e)
-            }
-        }
-        
-        // Check notification permission and show notification
-        try {
-            NotificationManagerCompat.from(this).notify(
-                roomId?.hashCode() ?: NOTIFICATION_ID, 
-                builder.build()
-            )
-        } catch (e: SecurityException) {
-            Log.w(LOGTAG, "Notification permission denied", e)
-        }
-    }
-
+    
     private fun initSharedPref() {
         sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         prefEnc = Encryption(getString(R.string.pref_enc_key_name))
@@ -293,51 +147,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-        // Add this function before onCreate:
-    private fun createNotificationChannels(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Message notifications channel
-            val messageChannel = NotificationChannel(
-                CHANNEL_ID_MESSAGE,
-                context.getString(R.string.notification_channel_messages),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = context.getString(R.string.notification_channel_messages_description)
-                enableLights(true)
-                enableVibration(true)
-            }
-            
-            // Call notifications channel with higher importance
-            val callChannel = NotificationChannel(
-                CHANNEL_ID_CALL,
-                context.getString(R.string.notification_channel_calls),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = context.getString(R.string.notification_channel_calls_description)
-                enableLights(true)
-                enableVibration(true)
-                val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-                setSound(soundUri, audioAttributes)
-            }
-            
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(messageChannel)
-            notificationManager.createNotificationChannel(callChannel)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         hideSystemUI()
         
-        // Call createNotificationChannels before using notifications
-        createNotificationChannels(this)
-        
+         
         // Listen for UI visibility changes and reapply fullscreen
         // Force fullscreen mode
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -579,26 +395,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Add this class to handle call actions
-class CallActionReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        val roomId = intent.getStringExtra("ROOM_ID")
-        
-        // Create an intent to open the app
-        val mainIntent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            
-            // Add the room ID and action to the intent
-            data = Uri.parse("matrix:r/$roomId")
-            
-            // Pass the action (answer/decline) to the app
-            putExtra("CALL_ACTION", intent.action)
-        }
-        
-        context.startActivity(mainIntent)
-        
-        // Cancel the notification
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(roomId?.hashCode() ?: 1000) // Use a simple constant instead of referencing the companion object
-    }
-}
