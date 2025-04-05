@@ -172,7 +172,7 @@ class MessagingService : FirebaseMessagingService() {
             val bubbleMetadata = if (!isGroupMessage) {
                 val bubbleIntent = Intent(this, MainActivity::class.java).apply {
                     action = Intent.ACTION_VIEW
-                    data = deepLinkUri // Corrected the assignment to use deepLinkUri
+                    setData(deepLinkUri) // Corrected the assignment to use deepLinkUri
                 }
                 val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
                 NotificationCompat.BubbleMetadata.Builder()
@@ -267,7 +267,7 @@ class MessagingService : FirebaseMessagingService() {
 	        val bubbleMetadata = if (roomName != data.sender.name) {
 	            val bubbleIntent = Intent(this, MainActivity::class.java).apply {
 	                action = Intent.ACTION_VIEW
-	                data = "matrix:roomid/${data.roomID.substring(1)}".toUri() // Corrected the assignment to use Uri
+	                setData("matrix:roomid/${data.roomID.substring(1)}".toUri())   // Corrected the assignment to use Uri
 	            }
 	            val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
 	            NotificationCompat.BubbleMetadata.Builder()
