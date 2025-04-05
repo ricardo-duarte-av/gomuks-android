@@ -261,6 +261,8 @@ class MessagingService : FirebaseMessagingService() {
 
 		// Bubbles
                 val isGroupMessage = roomName != data.sender.name
+	        val deepLinkUri = "matrix:roomid/${data.roomID.substring(1)}/e/${data.eventID.substring(1)}".toUri()
+		
             // Add bubble metadata for direct messages
             val bubbleMetadata = if (!isGroupMessage) {
                 val bubbleIntent = Intent(this, MainActivity::class.java).apply {
