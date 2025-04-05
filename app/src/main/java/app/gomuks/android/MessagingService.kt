@@ -168,6 +168,20 @@ class MessagingService : FirebaseMessagingService() {
 				createOrUpdateChatShortcut(this, data.roomID, roomName ?: data.sender.name, sender)
 			}
 
+	    if (!isGroupMessage) {
+	        // Add bubble metadata for direct messages
+	        val bubbleIntent = Intent(this, MainActivity::class.java).apply {
+	            action = Intent.ACTION_VIEW
+	            data = "matrix:roomid/${data.roomID.substring(1)}".toUri()
+	        }
+	        val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+	        val bubbleMetadata = NotificationCompat.BubbleMetadata.Builder()
+	            .setIntent(bubblePendingIntent)
+	            .setIcon(Icon.createWithResource(this, R.drawable.ic_chat))
+	            .setDesiredHeight(600)
+	            .build()
+	    }
+
             // Fetch the image if available
             if (!data.image.isNullOrEmpty()) {
                 val imageUrl = buildImageUrl(data.image)
@@ -191,7 +205,11 @@ class MessagingService : FirebaseMessagingService() {
                             .setShortcutId(data.roomID)  // Associate the notification with the conversation
                             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                             .setLargeIcon((sender.icon?.loadDrawable(this) as? BitmapDrawable)?.bitmap)  // Set the large icon with the sender's avatar
-							.addAction(R.drawable.ic_dismiss, "Dismiss", dismissPendingIntent) // Add dismiss action
+                            .addAction(R.drawable.ic_dismiss, "Dismiss", dismissPendingIntent) // Add dismiss action
+			    .setBubbleMetadata(if (isGroupMessage) bubbleMetadata else null)
+
+	
+				     
 
 
                         with(NotificationManagerCompat.from(this@MessagingService)) {
