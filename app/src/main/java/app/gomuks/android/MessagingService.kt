@@ -172,7 +172,7 @@ class MessagingService : FirebaseMessagingService() {
             val bubbleMetadata = if (!isGroupMessage) {
                 val bubbleIntent = Intent(this, MainActivity::class.java).apply {
                     action = Intent.ACTION_VIEW
-                    data = deepLinkUri
+                    data = deepLinkUri // Corrected the assignment to use deepLinkUri
                 }
                 val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
                 NotificationCompat.BubbleMetadata.Builder()
@@ -263,21 +263,21 @@ class MessagingService : FirebaseMessagingService() {
                 val isGroupMessage = roomName != data.sender.name
 	        val deepLinkUri = "matrix:roomid/${data.roomID.substring(1)}/e/${data.eventID.substring(1)}".toUri()
 		
-            // Add bubble metadata for direct messages
-            val bubbleMetadata = if (!isGroupMessage) {
-                val bubbleIntent = Intent(this, MainActivity::class.java).apply {
-                    action = Intent.ACTION_VIEW
-                    data = deepLinkUri
-                }
-                val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-                NotificationCompat.BubbleMetadata.Builder()
-                    .setIntent(bubblePendingIntent)
-                    .setIcon(IconCompat.createWithResource(this, R.drawable.ic_chat)) // Use IconCompat
-                    .setDesiredHeight(600)
-                    .build()
-            } else {
-                null
-            }
+	        // Add bubble metadata for direct messages
+	        val bubbleMetadata = if (roomName != data.sender.name) {
+	            val bubbleIntent = Intent(this, MainActivity::class.java).apply {
+	                action = Intent.ACTION_VIEW
+	                data = "matrix:roomid/${data.roomID.substring(1)}".toUri() // Corrected the assignment to use Uri
+	            }
+	            val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+	            NotificationCompat.BubbleMetadata.Builder()
+	                .setIntent(bubblePendingIntent)
+	                .setIcon(IconCompat.createWithResource(this, R.drawable.ic_chat)) // Use IconCompat
+	                .setDesiredHeight(600)
+	                .build()
+	        } else {
+	            null
+	        }
 
 			val builder = NotificationCompat.Builder(this, channelID)
 				.setSmallIcon(R.drawable.matrix)
