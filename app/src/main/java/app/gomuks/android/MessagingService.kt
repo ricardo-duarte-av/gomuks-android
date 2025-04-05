@@ -168,19 +168,21 @@ class MessagingService : FirebaseMessagingService() {
 				createOrUpdateChatShortcut(this, data.roomID, roomName ?: data.sender.name, sender)
 			}
 
-	    if (!isGroupMessage) {
-	        // Add bubble metadata for direct messages
-	        val bubbleIntent = Intent(this, MainActivity::class.java).apply {
-	            action = Intent.ACTION_VIEW
-	            data = "matrix:roomid/${data.roomID.substring(1)}".toUri()
-	        }
-	        val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-	        val bubbleMetadata = NotificationCompat.BubbleMetadata.Builder()
-	            .setIntent(bubblePendingIntent)
-	            .setIcon(Icon.createWithResource(this, R.drawable.ic_chat))
-	            .setDesiredHeight(600)
-	            .build()
-	    }
+            // Add bubble metadata for direct messages
+            val bubbleMetadata = if (!isGroupMessage) {
+                val bubbleIntent = Intent(this, MainActivity::class.java).apply {
+                    action = Intent.ACTION_VIEW
+                    data = deepLinkUri
+                }
+                val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+                NotificationCompat.BubbleMetadata.Builder()
+                    .setIntent(bubblePendingIntent)
+                    .setIcon(IconCompat.createWithResource(this, R.drawable.ic_chat)) // Use IconCompat
+                    .setDesiredHeight(600)
+                    .build()
+            } else {
+                null
+            }
 
             // Fetch the image if available
             if (!data.image.isNullOrEmpty()) {
@@ -206,7 +208,7 @@ class MessagingService : FirebaseMessagingService() {
                             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                             .setLargeIcon((sender.icon?.loadDrawable(this) as? BitmapDrawable)?.bitmap)  // Set the large icon with the sender's avatar
                             .addAction(R.drawable.ic_dismiss, "Dismiss", dismissPendingIntent) // Add dismiss action
-			    .setBubbleMetadata(if (isGroupMessage) bubbleMetadata else null)
+			    .setBubbleMetadata(bubbleMetadata) // Set bubble metadata
 
 	
 				     
@@ -259,19 +261,21 @@ class MessagingService : FirebaseMessagingService() {
 
 		// Bubbles
                 val isGroupMessage = roomName != data.sender.name
-		    if (!isGroupMessage) {
-		// Add bubble metadata for direct messages
-		val bubbleIntent = Intent(this, MainActivity::class.java).apply {
-		    action = Intent.ACTION_VIEW
-		    data = "matrix:roomid/${data.roomID.substring(1)}".toUri()
-		}
-		val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-		val bubbleMetadata = NotificationCompat.BubbleMetadata.Builder()
-		    .setIntent(bubblePendingIntent)
-		    .setIcon(Icon.createWithResource(this, R.drawable.ic_chat))
-		    .setDesiredHeight(600)
-		    .build()
-	    }
+            // Add bubble metadata for direct messages
+            val bubbleMetadata = if (!isGroupMessage) {
+                val bubbleIntent = Intent(this, MainActivity::class.java).apply {
+                    action = Intent.ACTION_VIEW
+                    data = deepLinkUri
+                }
+                val bubblePendingIntent = PendingIntent.getActivity(this, 0, bubbleIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+                NotificationCompat.BubbleMetadata.Builder()
+                    .setIntent(bubblePendingIntent)
+                    .setIcon(IconCompat.createWithResource(this, R.drawable.ic_chat)) // Use IconCompat
+                    .setDesiredHeight(600)
+                    .build()
+            } else {
+                null
+            }
 
 			val builder = NotificationCompat.Builder(this, channelID)
 				.setSmallIcon(R.drawable.matrix)
@@ -285,7 +289,7 @@ class MessagingService : FirebaseMessagingService() {
 				.setCategory(NotificationCompat.CATEGORY_MESSAGE)
 				.setLargeIcon(largeIcon)  // Set the large icon with the sender's avatar
 				.addAction(R.drawable.ic_dismiss, "Dismiss", dismissPendingIntent) // Add dismiss action
-				.setBubbleMetadata(if (isGroupMessage) bubbleMetadata else null)
+				.setBubbleMetadata(bubbleMetadata)
 
 			with(NotificationManagerCompat.from(this@MessagingService)) {
 				if (ActivityCompat.checkSelfPermission(
