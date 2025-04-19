@@ -1,6 +1,6 @@
 [versions]
-agp = "8.8.0"
-geckoviewBeta = "135.0.20250106170344"
+agp = "8.9.1"
+geckoviewBeta = "138.0.20250418091947"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
