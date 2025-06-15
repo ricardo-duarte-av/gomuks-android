@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.setPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -305,6 +306,13 @@ class MainActivity : ComponentActivity() {
         session.loadUri(parseIntentURL() ?: return false)
         setContentView(view)
         return true
+    }
+
+    fun resetPadding() {
+        // Hack to make sure the top padding css env var is applied
+        // For some reason it only loads after the first padding change
+        view.setPadding(0, 1, 0, 0)
+        view.setPadding(0)
     }
 
     @Composable
