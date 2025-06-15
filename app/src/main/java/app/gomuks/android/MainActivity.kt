@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.Base64
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -30,6 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -129,6 +134,7 @@ class MainActivity : ComponentActivity() {
         val runtime = getRuntime(this)
         session.open(runtime)
         view.setSession(session)
+        addSystemInsets()
 
         File(cacheDir, "upload").mkdirs()
 
@@ -250,6 +256,15 @@ class MainActivity : ComponentActivity() {
         val (serverURL, username, password) = getCredentials() ?: Triple("", "", "")
         setContent {
             ServerInput(serverURL, username, password, error)
+        }
+    }
+
+    private fun addSystemInsets() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+            v.setPadding(0, 0, 0, imeInsets.bottom)
+            insets
         }
     }
 
