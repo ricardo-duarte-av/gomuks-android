@@ -10,6 +10,8 @@ build:
   - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
   script:
   - ./gradlew assembleRelease
+  after_script:
+  - rm -f release-keystore.jks
   artifacts:
     paths:
     - ./app/build/outputs/apk/release/app-release.apk
