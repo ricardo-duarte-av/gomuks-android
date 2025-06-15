@@ -1,0 +1,15 @@
+build:
+  stage: build
+  image: dock.mau.dev/tulir/gomuks-build-docker/android:linux-amd64
+  tags:
+  - linux
+  - amd64
+  variables:
+    SECURE_FILES_DOWNLOAD_PATH: "./"
+  before_script:
+  - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+  script:
+  - ./gradlew assembleRelease
+  artifacts:
+    paths:
+    - ./app/build/outputs/apk/release/app-release.apk
