@@ -59,6 +59,10 @@ class PortDelegate(private val activity: MainActivity) : WebExtension.PortDelega
                     if (pushToken != null && now - (lastPushReg ?: (now - 13.hours)) > 12.hours) {
                         registerPush(port, pushToken)
                         lastPushReg = now
+                    } else if (pushToken == null) {
+                        Log.d(LOGTAG, "Not sending push registration: no token saved")
+                    } else {
+                        Log.d(LOGTAG, "Not sending push registration: last registration was recent")
                     }
                 }
 
@@ -112,6 +116,6 @@ class PortDelegate(private val activity: MainActivity) : WebExtension.PortDelega
                 )
             )
         )
-        Log.i(LOGTAG, "Sent push registration")
+        Log.i(LOGTAG, "Sent push registration with token $token")
     }
 }

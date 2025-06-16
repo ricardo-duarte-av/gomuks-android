@@ -32,6 +32,7 @@ class MessagingService : FirebaseMessagingService() {
             putString(getString(R.string.push_token_key), token)
             apply()
         }
+        Log.d(LOGTAG, "Got new push token: $token")
         CoroutineScope(Dispatchers.IO).launch {
             tokenFlow.emit(token)
         }
