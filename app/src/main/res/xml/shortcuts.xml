@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Direct message shortcuts -->
+    <shortcut
+        android:shortcutId="direct_messages"
+        android:enabled="true"
+        android:icon="@drawable/matrix"
+        android:shortcutShortLabel="@string/direct_message_channel"
+        android:shortcutLongLabel="@string/direct_message_channel">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="app.gomuks.android"
+            android:targetClass="app.gomuks.android.MainActivity" />
+        <categories android:name="direct_message" />
+    </shortcut>
+
+    <!-- Group message shortcuts -->
+    <shortcut
+        android:shortcutId="group_messages"
+        android:enabled="true"
+        android:icon="@drawable/matrix"
+        android:shortcutShortLabel="@string/group_message_channel"
+        android:shortcutLongLabel="@string/group_message_channel">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="app.gomuks.android"
+            android:targetClass="app.gomuks.android.MainActivity" />
+        <categories android:name="group_message" />
+    </shortcut>
+</shortcuts> 

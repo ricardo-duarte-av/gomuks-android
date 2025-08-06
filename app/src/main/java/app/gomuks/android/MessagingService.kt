@@ -25,6 +25,13 @@ class MessagingService : FirebaseMessagingService() {
         private const val LOGTAG = "Gomuks/MessagingService"
     }
 
+    private lateinit var conversationManager: ConversationManager
+
+    override fun onCreate() {
+        super.onCreate()
+        conversationManager = ConversationManager(this)
+    }
+
     override fun onNewToken(token: String) {
         val sharedPref =
             getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
@@ -82,6 +89,15 @@ class MessagingService : FirebaseMessagingService() {
         val sender = pushUserToPerson(data.sender)
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifID = data.roomID.hashCode()
+        
+        // Create or update conversation shortcut
+        conversationManager.createOrUpdateConversationShortcut(
+            roomId = data.roomID,
+            roomName = data.roomName,
+            roomType = data.getRoomType(),
+            sender = data.sender
+        )
+        
         val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
             MessagingStyle.extractMessagingStyleFromNotification(it.notification)
         } ?: MessagingStyle(pushUserToPerson(data.self)))
@@ -89,11 +105,11 @@ class MessagingService : FirebaseMessagingService() {
                 if (data.roomName != data.sender.name) data.roomName else null
             )
             .addMessage(MessagingStyle.Message(data.text, data.timestamp, sender))
-        val channelID = if (data.sound) {
-            NOISY_NOTIFICATION_CHANNEL_ID
-        } else {
-            SILENT_NOTIFICATION_CHANNEL_ID
-        }
+        
+        // Use conversation channels based on room type
+        val roomType = data.getRoomType()
+        val channelID = conversationManager.getConversationChannelId(roomType)
+        
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
@@ -103,12 +119,18 @@ class MessagingService : FirebaseMessagingService() {
             },
             PendingIntent.FLAG_IMMUTABLE,
         )
+        
         val builder = NotificationCompat.Builder(this, channelID)
             .setSmallIcon(R.drawable.matrix)
             .setStyle(messagingStyle)
             .setWhen(data.timestamp)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
+            .setConversationId(conversationManager.getConversationId(data.roomID, roomType))
+            // Add sound for noisy notifications
+            .setSound(if (data.sound) android.provider.Settings.System.DEFAULT_NOTIFICATION_URI else null)
+            .setVibrate(if (data.sound) longArrayOf(0, 250, 250, 250) else null)
+        
         with(NotificationManagerCompat.from(this)) {
             if (ActivityCompat.checkSelfPermission(
                     this@MessagingService,

@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.SET_SHORTCUTS" />
 
     <queries>
         <intent>
@@ -83,6 +84,11 @@
                     android:fragmentPrefix="#/"
                     tools:targetApi="35" />
             </intent-filter>
+
+            <!-- Shortcut categories for conversation API -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
 
             <!--
             TODO add share support

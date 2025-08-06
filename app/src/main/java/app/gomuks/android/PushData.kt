@@ -16,6 +16,11 @@ data class PushDismiss(
     @SerialName("room_id") val roomID: String,
 )
 
+enum class RoomType {
+    DIRECT_MESSAGE,
+    GROUP_MESSAGE
+}
+
 @Serializable
 data class PushMessage(
     val timestamp: Long,
@@ -33,7 +38,18 @@ data class PushMessage(
     val mention: Boolean = false,
     val reply: Boolean = false,
     val sound: Boolean = false,
-)
+) {
+    // Helper function to determine room type based on existing data
+    // Logic: If roomName == sender.name, it's a direct message (1-on-1 chat)
+    //        If roomName != sender.name, it's a group message (multiple participants)
+    fun getRoomType(): RoomType {
+        return if (roomName == sender.name) {
+            RoomType.DIRECT_MESSAGE
+        } else {
+            RoomType.GROUP_MESSAGE
+        }
+    }
+}
 
 @Serializable
 data class PushUser(

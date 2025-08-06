@@ -20,6 +20,10 @@
 
     <string name="notification_channel_silent">Silent notifications</string>
     <string name="notification_channel_noisy">Noisy notifications</string>
+    <string name="direct_message_channel">Direct Messages</string>
+    <string name="direct_message_channel_description">Notifications for 1-on-1 conversations with high priority</string>
+    <string name="group_message_channel">Group Messages</string>
+    <string name="group_message_channel_description">Notifications for group conversations and channels</string>
 
     <!-- BasicGeckoViewPrompt strings -->
     <string name="username">Username</string>

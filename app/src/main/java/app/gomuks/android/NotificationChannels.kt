@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 
+@Deprecated("Use ConversationManager channels instead")
 internal const val SILENT_NOTIFICATION_CHANNEL_ID = "silent_notification"
+@Deprecated("Use ConversationManager channels instead")
 internal const val NOISY_NOTIFICATION_CHANNEL_ID = "noisy_notification"
 
+@Deprecated("Use ConversationManager instead")
 fun createNotificationChannels(context: Context) {
     val notificationManager = NotificationManagerCompat.from(context)
     notificationManager.createNotificationChannel(

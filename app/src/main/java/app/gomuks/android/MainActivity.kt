@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
     internal lateinit var sharedPref: SharedPreferences
     private lateinit var prefEnc: Encryption
     internal lateinit var deviceID: UUID
+    private lateinit var conversationManager: ConversationManager
 
     internal var port: WebExtension.Port? = null
 
@@ -129,7 +130,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initSharedPref()
-        createNotificationChannels(this)
+        conversationManager = ConversationManager(this)
         view = GeckoView(this)
         session = GeckoSession()
         val runtime = getRuntime(this)
