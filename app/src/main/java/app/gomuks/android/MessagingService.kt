@@ -90,13 +90,17 @@ class MessagingService : FirebaseMessagingService() {
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifID = data.roomID.hashCode()
         
-        // Create or update conversation shortcut
-        conversationManager.createOrUpdateConversationShortcut(
-            roomId = data.roomID,
-            roomName = data.roomName,
-            roomType = data.getRoomType(),
-            sender = data.sender
-        )
+        // Create or update conversation shortcut (if ConversationManager is available)
+        try {
+            conversationManager?.createOrUpdateConversationShortcut(
+                roomId = data.roomID,
+                roomName = data.roomName,
+                roomType = data.getRoomType(),
+                sender = data.sender
+            )
+        } catch (e: Exception) {
+            Log.e(LOGTAG, "Failed to create conversation shortcut", e)
+        }
         
         val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
             MessagingStyle.extractMessagingStyleFromNotification(it.notification)
@@ -106,9 +110,26 @@ class MessagingService : FirebaseMessagingService() {
             )
             .addMessage(MessagingStyle.Message(data.text, data.timestamp, sender))
         
-        // Use conversation channels based on room type
+        // Use conversation channels based on room type (fallback to old channels if needed)
         val roomType = data.getRoomType()
-        val channelID = conversationManager.getConversationChannelId(roomType)
+        val channelID = try {
+            conversationManager?.getConversationChannelId(roomType)
+        } catch (e: Exception) {
+            Log.e(LOGTAG, "Failed to get conversation channel ID", e)
+            // Fallback to old channels
+            if (data.sound) {
+                "noisy_notification"
+            } else {
+                "silent_notification"
+            }
+        } ?: run {
+            // Fallback to old channels
+            if (data.sound) {
+                "noisy_notification"
+            } else {
+                "silent_notification"
+            }
+        }
         
         val pendingIntent = PendingIntent.getActivity(
             this,

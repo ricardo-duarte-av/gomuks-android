@@ -130,7 +130,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initSharedPref()
-        conversationManager = ConversationManager(this)
+        
+        // Initialize GeckoView first
         view = GeckoView(this)
         session = GeckoSession()
         val runtime = getRuntime(this)
@@ -139,6 +140,19 @@ class MainActivity : ComponentActivity() {
         addSystemInsets()
 
         File(cacheDir, "upload").mkdirs()
+
+        // Initialize ConversationManager after GeckoView setup
+        try {
+            conversationManager = ConversationManager(this)
+        } catch (e: Exception) {
+            Log.e(LOGTAG, "Failed to initialize ConversationManager", e)
+            // Create fallback notification channels
+            try {
+                createFallbackNotificationChannels(this)
+            } catch (e2: Exception) {
+                Log.e(LOGTAG, "Failed to create fallback notification channels", e2)
+            }
+        }
 
         session.progressDelegate = object : ProgressDelegate {
             override fun onSessionStateChange(
