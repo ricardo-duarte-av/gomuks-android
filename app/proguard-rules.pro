@@ -20,6 +20,14 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# Suppress warnings for Java Beans classes that SnakeYAML tries to use
+# but aren't available on Android
+-dontwarn java.beans.BeanInfo
+-dontwarn java.beans.FeatureDescriptor
+-dontwarn java.beans.IntrospectionException
+-dontwarn java.beans.Introspector
+-dontwarn java.beans.PropertyDescriptor
+
 # Keep SnakeYAML classes that GeckoView needs
 -keep class org.yaml.snakeyaml.** { *; }
 -keep class org.yaml.snakeyaml.LoaderOptions { *; }
