@@ -1,9 +1,11 @@
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.gms.google.services)
+    id("kotlin-kapt") // Add this line for annotation processing
 }
 
 android {
@@ -11,7 +13,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "app.gomuks.android"
+        applicationId = System.getenv("APP_ID") ?: "pt.aguiarvieira.gomuks.xxx"
         minSdk = 33
         targetSdk = 35
         versionCode = 1
@@ -21,39 +23,24 @@ android {
     }
 
     signingConfigs {
-        if (System.getenv("ANDROID_KEY_STOREFILE") != null && System.getenv("ANDROID_KEYSTORE_PASSWORD") != null) {
-            create("release") {
-                storeFile = file(System.getenv("ANDROID_KEY_STOREFILE"))
-                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-                keyAlias = "release"
-                keyPassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-            }
+        create("releaseSigning") {
+            keyAlias = "habitica"         // Alias of the key in the keystore
+            keyPassword = "12345678"   // Password for the key
+            storeFile = file("./gomuks.keystore")  // Keystore file path
+            storePassword = "12345678"  // Keystore password
         }
-    }
-
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("x86_64", "arm64-v8a")
-            isUniversalApk = false
-        }
-    }
+    } 
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isDebuggable = true
+            signingConfig = signingConfigs.getByName("releaseSigning")
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            if (signingConfigs.findByName("release") != null) {
-                signingConfig = signingConfigs.getByName("release")
-            }
-        }
-        debug {
-            isDebuggable = true
         }
     }
     compileOptions {
@@ -66,9 +53,18 @@ android {
     buildFeatures {
         compose = true
     }
+    splits {
+        abi {
+            isEnable = true // Corrected: 'isEnable' instead of 'enable'
+            reset()
+            include("arm64-v8a", "armeabi-v7a") // Only include needed ABIs
+            isUniversalApk = false // Corrected: 'isUniversalApk' instead of 'universalApk'
+        }
+    }
 }
 
 dependencies {
+    val activity_version = "1.10.1"
     implementation(libs.geckoview.beta)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -87,4 +83,26 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("androidx.fragment:fragment-ktx:1.6.2") // Use the latest version
+    implementation("org.snakeyaml:snakeyaml-engine:2.7") // Use latest version
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core:1.8.0") // Add the core library for NotificationCompat
+    implementation("androidx.activity:activity-ktx:$activity_version") //Edge to edge
+    implementation("androidx.interpolator:interpolator:1.0.0")
+
+    // Glide dependencies
+    implementation("com.github.bumptech.glide:glide:4.14.2")
+    kapt("com.github.bumptech.glide:compiler:4.14.2") // Add this line for annotation processing
+    
+    // OkHttp dependencies
+    implementation("com.squareup.okhttp3:okhttp:4.9.3") // Add OkHttp dependency
+
+    // SVG Fallback
+    implementation("com.caverock:androidsvg-aar:1.4")
+}
+
+
+configurations.all {
+    exclude(group = "org.yaml", module = "snakeyaml")
 }
