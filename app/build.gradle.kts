@@ -84,7 +84,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.fragment:fragment-ktx:1.6.2") // Use the latest version
-    implementation("org.snakeyaml:snakeyaml-engine:2.7") // Use latest version
+    implementation("org.yaml:snakeyaml:2.0") // Use the correct SnakeYAML version
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.core:core:1.8.0") // Add the core library for NotificationCompat
@@ -100,9 +100,4 @@ dependencies {
 
     // SVG Fallback
     implementation("com.caverock:androidsvg-aar:1.4")
-}
-
-
-configurations.all {
-    exclude(group = "org.yaml", module = "snakeyaml")
 }

@@ -1,5 +1,5 @@
 # Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
+# You can control the set of set of applied configuration files using the
 # proguardFiles setting in build.gradle.
 #
 # For more details, see
@@ -19,3 +19,22 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep SnakeYAML classes that GeckoView needs
+-keep class org.yaml.snakeyaml.** { *; }
+-keep class org.yaml.snakeyaml.LoaderOptions { *; }
+-keep class org.yaml.snakeyaml.TypeDescription { *; }
+-keep class org.yaml.snakeyaml.Yaml { *; }
+-keep class org.yaml.snakeyaml.constructor.BaseConstructor { *; }
+-keep class org.yaml.snakeyaml.constructor.Constructor { *; }
+-keep class org.yaml.snakeyaml.error.YAMLException { *; }
+
+# Keep our conversation API classes
+-keep class app.gomuks.android.ConversationManager { *; }
+-keep class app.gomuks.android.PushData { *; }
+-keep class app.gomuks.android.PushMessage { *; }
+-keep class app.gomuks.android.PushUser { *; }
+-keep class app.gomuks.android.RoomType { *; }
+
+# Keep GeckoView classes
+-keep class org.mozilla.geckoview.** { *; }
