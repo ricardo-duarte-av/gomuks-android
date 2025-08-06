@@ -117,7 +117,7 @@ class ConversationManager(private val context: Context) {
                 Log.d(LOGTAG, "Updated shortcut for room: $roomName")
             } else {
                 // Check if we can add more shortcuts
-                if (shortcutManager.dynamicShortcutCount < shortcutManager.maxShortcutCountPerActivity) {
+                if (shortcutManager.dynamicShortcuts.size < shortcutManager.maxShortcutCountPerActivity) {
                     shortcutManager.dynamicShortcuts = shortcutManager.dynamicShortcuts + shortcut
                     Log.d(LOGTAG, "Created shortcut for room: $roomName")
                 } else {
