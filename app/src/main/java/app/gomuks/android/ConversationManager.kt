@@ -11,8 +11,7 @@ import android.util.Log
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
-import androidx.core.graphics.drawable.IconCompat
-import androidx.core.graphics.drawable.toIcon
+import androidx.core.net.toUri
 
 class ConversationManager(private val context: Context) {
     companion object {
@@ -52,7 +51,6 @@ class ConversationManager(private val context: Context) {
                 .setLightsEnabled(true)
                 .setLightColor(R.color.primary_color)
                 .setShowBadge(true)
-                .setAllowBubbles(true)
                 .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI, null)
                 .build()
         )
@@ -70,7 +68,6 @@ class ConversationManager(private val context: Context) {
                 .setLightsEnabled(true)
                 .setLightColor(R.color.primary_color)
                 .setShowBadge(true)
-                .setAllowBubbles(true)
                 .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI, null)
                 .build()
         )
@@ -104,7 +101,7 @@ class ConversationManager(private val context: Context) {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 })
                 .setCategories(setOf(category))
-                .setPerson(Person.Builder()
+                .setPerson(android.app.Person.Builder()
                     .setKey(roomId)
                     .setName(roomName)
                     .setUri("matrix:roomid/${roomId.substring(1)}")

@@ -126,7 +126,6 @@ class MessagingService : FirebaseMessagingService() {
             .setWhen(data.timestamp)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .setConversationId(conversationManager.getConversationId(data.roomID, roomType))
             // Add sound for noisy notifications
             .setSound(if (data.sound) android.provider.Settings.System.DEFAULT_NOTIFICATION_URI else null)
             .setVibrate(if (data.sound) longArrayOf(0, 250, 250, 250) else null)
