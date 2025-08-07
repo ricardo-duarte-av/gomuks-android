@@ -65,7 +65,7 @@ android {
 
 dependencies {
     val activity_version = "1.10.1"
-    implementation(libs.geckoview.beta)
+    implementation(libs.geckoview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
