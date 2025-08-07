@@ -28,6 +28,10 @@
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
 
+# Suppress hidden API warnings from GeckoView
+-dontwarn org.mozilla.gecko.**
+-dontwarn org.mozilla.geckoview.**
+
 # Keep SnakeYAML classes that GeckoView needs
 -keep class org.yaml.snakeyaml.** { *; }
 -keep class org.yaml.snakeyaml.LoaderOptions { *; }

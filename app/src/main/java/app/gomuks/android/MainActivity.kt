@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
     internal lateinit var sharedPref: SharedPreferences
     private lateinit var prefEnc: Encryption
     internal lateinit var deviceID: UUID
-    private lateinit var conversationManager: ConversationManager
+    private var conversationManager: ConversationManager? = null
 
     internal var port: WebExtension.Port? = null
 
@@ -97,6 +97,24 @@ class MainActivity : ComponentActivity() {
                 deviceID = UUID.fromString(it)
             }
         }
+    }
+
+    private fun getConversationManager(): ConversationManager? {
+        if (conversationManager == null) {
+            try {
+                conversationManager = ConversationManager(this)
+                Log.d(LOGTAG, "ConversationManager initialized successfully")
+            } catch (e: Exception) {
+                Log.e(LOGTAG, "Failed to initialize ConversationManager", e)
+                // Create fallback notification channels
+                try {
+                    createFallbackNotificationChannels(this)
+                } catch (e2: Exception) {
+                    Log.e(LOGTAG, "Failed to create fallback notification channels", e2)
+                }
+            }
+        }
+        return conversationManager
     }
 
     internal fun getPushEncryptionKey(): String {
@@ -140,19 +158,6 @@ class MainActivity : ComponentActivity() {
         addSystemInsets()
 
         File(cacheDir, "upload").mkdirs()
-
-        // Initialize ConversationManager after GeckoView setup
-        try {
-            conversationManager = ConversationManager(this)
-        } catch (e: Exception) {
-            Log.e(LOGTAG, "Failed to initialize ConversationManager", e)
-            // Create fallback notification channels
-            try {
-                createFallbackNotificationChannels(this)
-            } catch (e2: Exception) {
-                Log.e(LOGTAG, "Failed to create fallback notification channels", e2)
-            }
-        }
 
         session.progressDelegate = object : ProgressDelegate {
             override fun onSessionStateChange(
@@ -231,6 +236,9 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Log.i(LOGTAG, "onResume")
+        
+        // Initialize ConversationManager after app is fully loaded
+        getConversationManager()
     }
 
     override fun onStop() {
