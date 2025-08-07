@@ -10,12 +10,12 @@ plugins {
 
 android {
     namespace = "app.gomuks.android"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = System.getenv("APP_ID") ?: "pt.aguiarvieira.gomuks.xxx"
         minSdk = 33
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
