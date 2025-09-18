@@ -11,7 +11,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "app.gomuks.android"
+        applicationId = "pt.aguiarvieira.gomuks.xxx"
         minSdk = 33
         targetSdk = 35
         versionCode = 1
@@ -21,15 +21,14 @@ android {
     }
 
     signingConfigs {
-        if (System.getenv("ANDROID_KEY_STOREFILE") != null && System.getenv("ANDROID_KEYSTORE_PASSWORD") != null) {
-            create("release") {
-                storeFile = file(System.getenv("ANDROID_KEY_STOREFILE"))
-                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-                keyAlias = "release"
-                keyPassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-            }
+        create("releaseSigning") {
+            keyAlias = "habitica"         // Alias of the key in the keystore
+            keyPassword = "12345678"   // Password for the key
+            storeFile = file("./gomuks.keystore")  // Keystore file path
+            storePassword = "12345678"  // Keystore password
         }
-    }
+    } 
+
 
     splits {
         abi {
@@ -42,8 +41,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isDebuggable = true
+            isMinifyEnabled = true
+            isDebuggable = false
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
