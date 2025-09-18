@@ -21,7 +21,7 @@ android {
     }
 
     signingConfigs {
-        create("releaseSigning") {
+        create("release") {
             keyAlias = "habitica"         // Alias of the key in the keystore
             keyPassword = "12345678"   // Password for the key
             storeFile = file("./gomuks.keystore")  // Keystore file path
