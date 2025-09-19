@@ -263,8 +263,16 @@ class MainActivity : ComponentActivity() {
     private fun addSystemInsets() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-            v.setPadding(0, 0, 0, imeInsets.bottom)
+            
+            // Apply system bar insets (status bar and navigation bar)
+            v.setPadding(
+                systemBarsInsets.left,
+                systemBarsInsets.top,
+                systemBarsInsets.right,
+                systemBarsInsets.bottom + imeInsets.bottom
+            )
             insets
         }
     }
@@ -311,8 +319,8 @@ class MainActivity : ComponentActivity() {
     fun resetPadding() {
         // Hack to make sure the top padding css env var is applied
         // For some reason it only loads after the first padding change
-        view.setPadding(0, 1, 0, 0)
-        view.setPadding(0)
+        // We need to preserve system bar insets during this reset
+        ViewCompat.requestApplyInsets(view)
     }
 
     @Composable
