@@ -248,6 +248,7 @@ class MessagingService : FirebaseMessagingService() {
         val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
             MessagingStyle.extractMessagingStyleFromNotification(it.notification)
         } ?: MessagingStyle(pushUserToPerson(data.self, imageAuth)))
+            .setConversationId(data.roomID)  // Set conversation ID for proper conversation recognition
             .setConversationTitle(
                 if (isGroupRoom) data.roomName else null
             )
@@ -278,6 +279,8 @@ class MessagingService : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .setShortcutId(data.roomID)  // Link to the room shortcut for per-room settings
             .setLargeIcon(roomAvatar)  // Use room avatar as large icon
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)  // Mark as message category
+            .setGroup(data.roomID)  // Group notifications by room
         with(NotificationManagerCompat.from(this)) {
             if (ActivityCompat.checkSelfPermission(
                     this@MessagingService,
