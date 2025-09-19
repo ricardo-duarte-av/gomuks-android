@@ -6,12 +6,16 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.MessagingStyle
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -67,6 +71,11 @@ class MessagingService : FirebaseMessagingService() {
         data.messages?.forEach {
             showMessageNotification(it)
         }
+        
+        // Clean up shortcuts for dismissed rooms
+        data.dismiss?.forEach { dismissData ->
+            removeRoomShortcut(dismissData.roomID)
+        }
     }
 
     private fun pushUserToPerson(data: PushUser): Person {
@@ -78,7 +87,48 @@ class MessagingService : FirebaseMessagingService() {
             .build()
     }
 
+    private fun createOrUpdateRoomShortcut(data: PushMessage) {
+        val roomId = data.roomID
+        val roomName = data.roomName
+        val isGroupRoom = data.roomName != data.sender.name
+        
+        // Create intent for the room
+        val roomIntent = Intent(this, MainActivity::class.java).apply {
+            setAction(Intent.ACTION_VIEW)
+            setData("matrix:roomid/${roomId.substring(1)}".toUri())
+        }
+        
+        // Create shortcut for the room
+        val shortcut = ShortcutInfoCompat.Builder(this, roomId)
+            .setShortLabel(roomName)
+            .setLongLabel("$roomName - ${if (isGroupRoom) "Group Chat" else "Direct Message"}")
+            .setIcon(IconCompat.createWithResource(this, R.drawable.matrix))
+            .setIntent(roomIntent)
+            .setCategories(setOf(NotificationManagerCompat.SHORTCUT_CATEGORY_CONVERSATION))
+            .build()
+        
+        // Add or update the shortcut
+        try {
+            ShortcutManagerCompat.addDynamicShortcuts(this, listOf(shortcut))
+            Log.d(LOGTAG, "Created/updated shortcut for room: $roomName")
+        } catch (e: Exception) {
+            Log.e(LOGTAG, "Failed to create shortcut for room: $roomName", e)
+        }
+    }
+
+    private fun removeRoomShortcut(roomId: String) {
+        try {
+            ShortcutManagerCompat.removeDynamicShortcuts(this, listOf(roomId))
+            Log.d(LOGTAG, "Removed shortcut for room: $roomId")
+        } catch (e: Exception) {
+            Log.e(LOGTAG, "Failed to remove shortcut for room: $roomId", e)
+        }
+    }
+
     private fun showMessageNotification(data: PushMessage) {
+        // Create or update shortcut for this room
+        createOrUpdateRoomShortcut(data)
+        
         val sender = pushUserToPerson(data.sender)
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifID = data.roomID.hashCode()
@@ -114,6 +164,7 @@ class MessagingService : FirebaseMessagingService() {
             .setWhen(data.timestamp)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
+            .setShortcutId(data.roomID)  // Link to the room shortcut for per-room settings
         with(NotificationManagerCompat.from(this)) {
             if (ActivityCompat.checkSelfPermission(
                     this@MessagingService,

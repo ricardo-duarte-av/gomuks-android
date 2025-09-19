@@ -36,6 +36,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
+import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -324,6 +328,32 @@ class MainActivity : ComponentActivity() {
         // For some reason it only loads after the first padding change
         // We need to preserve system bar insets during this reset
         ViewCompat.requestApplyInsets(view)
+    }
+
+    /**
+     * Utility function to create or update a room shortcut for per-room notification settings
+     * This can be called from the web app when room information changes
+     */
+    fun updateRoomShortcut(roomId: String, roomName: String, isGroupRoom: Boolean, roomAvatar: String? = null) {
+        val roomIntent = Intent(this, MainActivity::class.java).apply {
+            setAction(Intent.ACTION_VIEW)
+            setData("matrix:roomid/${roomId.substring(1)}".toUri())
+        }
+        
+        val shortcut = ShortcutInfoCompat.Builder(this, roomId)
+            .setShortLabel(roomName)
+            .setLongLabel("$roomName - ${if (isGroupRoom) "Group Chat" else "Direct Message"}")
+            .setIcon(IconCompat.createWithResource(this, R.drawable.matrix))
+            .setIntent(roomIntent)
+            .setCategories(setOf(NotificationManagerCompat.SHORTCUT_CATEGORY_CONVERSATION))
+            .build()
+        
+        try {
+            ShortcutManagerCompat.addDynamicShortcuts(this, listOf(shortcut))
+            Log.d(LOGTAG, "Updated shortcut for room: $roomName")
+        } catch (e: Exception) {
+            Log.e(LOGTAG, "Failed to update shortcut for room: $roomName", e)
+        }
     }
 
     @Composable
