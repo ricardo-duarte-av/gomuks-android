@@ -65,6 +65,7 @@ class MessagingService : FirebaseMessagingService() {
             return
         }
         Log.i(LOGTAG, "Decrypted payload: $data")
+        Log.i(LOGTAG, "Raw decrypted payload text: $decryptedPayload")
         if (!data.dismiss.isNullOrEmpty()) {
             with(NotificationManagerCompat.from(this)) {
                 for (dismiss in data.dismiss) {
