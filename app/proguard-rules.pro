@@ -49,4 +49,6 @@
 -keep class app.gomuks.android.RoomType { *; }
 
 # Keep GeckoView classes
--keep class org.mozilla.geckoview.** { *; }
+-keep class org.mozilla.** { *; }
+-dontwarn org.mozilla.**
+
