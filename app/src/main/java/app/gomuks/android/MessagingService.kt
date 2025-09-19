@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.util.Log
 import java.io.InputStream
+import java.net.HttpURLConnection
 import java.net.URL
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -74,7 +75,7 @@ class MessagingService : FirebaseMessagingService() {
             }
         }
         data.messages?.forEach {
-            showMessageNotification(it)
+            showMessageNotification(it, data.imageAuth)
         }
         
         // Clean up shortcuts for dismissed rooms
@@ -83,8 +84,8 @@ class MessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun pushUserToPerson(data: PushUser): Person {
-        val userAvatar = downloadAvatar(data.avatar)
+    private fun pushUserToPerson(data: PushUser, imageAuth: String?): Person {
+        val userAvatar = downloadAvatar(data.avatar, imageAuth)
         return Person.Builder()
             .setKey(data.id)
             .setName(data.name)
@@ -93,7 +94,7 @@ class MessagingService : FirebaseMessagingService() {
             .build()
     }
 
-    private fun createOrUpdateRoomShortcut(data: PushMessage) {
+    private fun createOrUpdateRoomShortcut(data: PushMessage, imageAuth: String?) {
         val roomId = data.roomID
         val roomName = data.roomName
         val isGroupRoom = data.roomName != data.sender.name
@@ -104,8 +105,8 @@ class MessagingService : FirebaseMessagingService() {
             setData("matrix:roomid/${roomId.substring(1)}".toUri())
         }
         
-        // Download room avatar
-        val roomAvatar = downloadAvatar(data.roomAvatar)
+        // Download room avatar with authentication
+        val roomAvatar = downloadAvatar(data.roomAvatar, imageAuth)
         val shortcutIcon = if (roomAvatar != null) {
             IconCompat.createWithBitmap(roomAvatar)
         } else {
@@ -139,31 +140,52 @@ class MessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun downloadAvatar(avatarUrl: String?): Bitmap? {
+    private fun downloadAvatar(avatarUrl: String?, imageAuth: String?): Bitmap? {
         if (avatarUrl.isNullOrEmpty()) return null
         
+        // Construct the full URL with authentication key
+        val fullUrl = if (imageAuth != null && avatarUrl.contains("?")) {
+            "$avatarUrl&image_auth=$imageAuth"
+        } else if (imageAuth != null) {
+            "$avatarUrl?image_auth=$imageAuth"
+        } else {
+            avatarUrl
+        }
+        
+        Log.d(LOGTAG, "Downloading avatar from: $fullUrl")
+        
         return try {
-            val inputStream: InputStream = URL(avatarUrl).openStream()
+            val url = URL(fullUrl)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            
+            // Add required headers
+            connection.setRequestProperty("Sec-Fetch-Mode", "no-cors")
+            connection.setRequestProperty("Sec-Fetch-Site", "cross-site")
+            connection.setRequestProperty("Sec-Fetch-Dest", "image")
+            
+            val inputStream: InputStream = connection.inputStream
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
+            connection.disconnect()
             bitmap
         } catch (e: Exception) {
-            Log.e(LOGTAG, "Failed to download avatar from $avatarUrl", e)
+            Log.e(LOGTAG, "Failed to download avatar from $fullUrl", e)
             null
         }
     }
 
-    private fun showMessageNotification(data: PushMessage) {
+    private fun showMessageNotification(data: PushMessage, imageAuth: String?) {
         // Create or update shortcut for this room
-        createOrUpdateRoomShortcut(data)
+        createOrUpdateRoomShortcut(data, imageAuth)
         
-        val sender = pushUserToPerson(data.sender)
+        val sender = pushUserToPerson(data.sender, imageAuth)
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifID = data.roomID.hashCode()
         val isGroupRoom = data.roomName != data.sender.name
         
         // Download room avatar for the conversation
-        val roomAvatar = downloadAvatar(data.roomAvatar)
+        val roomAvatar = downloadAvatar(data.roomAvatar, imageAuth)
         val conversationIcon = if (roomAvatar != null) {
             IconCompat.createWithBitmap(roomAvatar)
         } else {
@@ -172,7 +194,7 @@ class MessagingService : FirebaseMessagingService() {
         
         val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
             MessagingStyle.extractMessagingStyleFromNotification(it.notification)
-        } ?: MessagingStyle(pushUserToPerson(data.self)))
+        } ?: MessagingStyle(pushUserToPerson(data.self, imageAuth)))
             .setConversationTitle(
                 if (isGroupRoom) data.roomName else null
             )

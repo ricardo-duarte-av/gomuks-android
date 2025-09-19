@@ -344,9 +344,19 @@ class MainActivity : ComponentActivity() {
         // Download room avatar if provided
         val avatarBitmap = if (!roomAvatar.isNullOrEmpty()) {
             try {
-                val inputStream: java.io.InputStream = java.net.URL(roomAvatar).openStream()
+                val url = java.net.URL(roomAvatar)
+                val connection = url.openConnection() as java.net.HttpURLConnection
+                connection.requestMethod = "GET"
+                
+                // Add required headers
+                connection.setRequestProperty("Sec-Fetch-Mode", "no-cors")
+                connection.setRequestProperty("Sec-Fetch-Site", "cross-site")
+                connection.setRequestProperty("Sec-Fetch-Dest", "image")
+                
+                val inputStream: java.io.InputStream = connection.inputStream
                 val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
                 inputStream.close()
+                connection.disconnect()
                 bitmap
             } catch (e: Exception) {
                 Log.e(LOGTAG, "Failed to download avatar from $roomAvatar", e)
