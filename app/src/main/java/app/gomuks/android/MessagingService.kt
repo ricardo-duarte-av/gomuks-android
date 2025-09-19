@@ -104,7 +104,7 @@ class MessagingService : FirebaseMessagingService() {
             .setLongLabel("$roomName - ${if (isGroupRoom) "Group Chat" else "Direct Message"}")
             .setIcon(IconCompat.createWithResource(this, R.drawable.matrix))
             .setIntent(roomIntent)
-            .setCategories(setOf(NotificationManagerCompat.SHORTCUT_CATEGORY_CONVERSATION))
+            .setCategories(setOf(ShortcutManagerCompat.SHORTCUT_CATEGORY_CONVERSATION))
             .build()
         
         // Add or update the shortcut

@@ -40,6 +40,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -345,7 +346,7 @@ class MainActivity : ComponentActivity() {
             .setLongLabel("$roomName - ${if (isGroupRoom) "Group Chat" else "Direct Message"}")
             .setIcon(IconCompat.createWithResource(this, R.drawable.matrix))
             .setIntent(roomIntent)
-            .setCategories(setOf(NotificationManagerCompat.SHORTCUT_CATEGORY_CONVERSATION))
+            .setCategories(setOf(ShortcutManagerCompat.SHORTCUT_CATEGORY_CONVERSATION))
             .build()
         
         try {
