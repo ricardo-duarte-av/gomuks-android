@@ -82,17 +82,22 @@ class MessagingService : FirebaseMessagingService() {
         val sender = pushUserToPerson(data.sender)
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifID = data.roomID.hashCode()
+        val isGroupRoom = data.roomName != data.sender.name
         val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
             MessagingStyle.extractMessagingStyleFromNotification(it.notification)
         } ?: MessagingStyle(pushUserToPerson(data.self)))
             .setConversationTitle(
-                if (data.roomName != data.sender.name) data.roomName else null
+                if (isGroupRoom) data.roomName else null
             )
             .addMessage(MessagingStyle.Message(data.text, data.timestamp, sender))
-        val channelID = if (data.sound) {
-            NOISY_NOTIFICATION_CHANNEL_ID
-        } else {
-            SILENT_NOTIFICATION_CHANNEL_ID
+        
+        // Choose channel based on room type and sound preference
+        val channelID = when {
+            isGroupRoom && data.sound -> GROUP_NOISY_NOTIFICATION_CHANNEL_ID
+            isGroupRoom && !data.sound -> GROUP_SILENT_NOTIFICATION_CHANNEL_ID
+            !isGroupRoom && data.sound -> DM_NOISY_NOTIFICATION_CHANNEL_ID
+            !isGroupRoom && !data.sound -> DM_SILENT_NOTIFICATION_CHANNEL_ID
+            else -> if (data.sound) NOISY_NOTIFICATION_CHANNEL_ID else SILENT_NOTIFICATION_CHANNEL_ID
         }
         val pendingIntent = PendingIntent.getActivity(
             this,
