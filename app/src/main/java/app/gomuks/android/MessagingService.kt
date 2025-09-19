@@ -175,7 +175,6 @@ class MessagingService : FirebaseMessagingService() {
             .setConversationTitle(
                 if (isGroupRoom) data.roomName else null
             )
-            .setConversationIcon(conversationIcon)
             .addMessage(MessagingStyle.Message(data.text, data.timestamp, sender))
         
         // Choose channel based on room type and sound preference
@@ -202,6 +201,7 @@ class MessagingService : FirebaseMessagingService() {
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setShortcutId(data.roomID)  // Link to the room shortcut for per-room settings
+            .setLargeIcon(roomAvatar)  // Use room avatar as large icon
         with(NotificationManagerCompat.from(this)) {
             if (ActivityCompat.checkSelfPermission(
                     this@MessagingService,
