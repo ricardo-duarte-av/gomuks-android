@@ -274,9 +274,6 @@ class MainActivity : ComponentActivity() {
                 systemBarsInsets.bottom + imeInsets.bottom
             )
             
-            // Ensure the view's touch area is also constrained by the insets
-            v.clipToPadding = true
-            
             // Add touch interceptor to prevent touches in system bar areas
             v.setOnTouchListener { _, event ->
                 val x = event.x
