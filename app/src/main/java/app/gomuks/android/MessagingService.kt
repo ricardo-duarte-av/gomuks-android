@@ -248,7 +248,6 @@ class MessagingService : FirebaseMessagingService() {
         val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
             MessagingStyle.extractMessagingStyleFromNotification(it.notification)
         } ?: MessagingStyle(pushUserToPerson(data.self, imageAuth)))
-            .setConversationId(data.roomID)  // Set conversation ID for proper conversation recognition
             .setConversationTitle(
                 if (isGroupRoom) data.roomName else null
             )
