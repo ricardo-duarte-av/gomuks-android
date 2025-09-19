@@ -150,13 +150,28 @@ class MessagingService : FirebaseMessagingService() {
             return null
         }
         
+        // Get server URL from shared preferences
+        val sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val serverURL = sharedPref.getString(getString(R.string.server_url_key), null)
+        
+        if (serverURL.isNullOrEmpty()) {
+            Log.e(LOGTAG, "Server URL not found in preferences")
+            return null
+        }
+        
+        Log.d(LOGTAG, "Server URL: $serverURL")
+        
+        // Construct the full URL by combining server URL with avatar path
+        val baseUrl = if (serverURL.endsWith("/")) serverURL else "$serverURL/"
+        val avatarPath = if (avatarUrl.startsWith("/")) avatarUrl.substring(1) else avatarUrl
+        
         // Construct the full URL with authentication key
-        val fullUrl = if (imageAuth != null && avatarUrl.contains("?")) {
-            "$avatarUrl&image_auth=$imageAuth"
+        val fullUrl = if (imageAuth != null && avatarPath.contains("?")) {
+            "$baseUrl$avatarPath&image_auth=$imageAuth"
         } else if (imageAuth != null) {
-            "$avatarUrl?image_auth=$imageAuth"
+            "$baseUrl$avatarPath?image_auth=$imageAuth"
         } else {
-            avatarUrl
+            "$baseUrl$avatarPath"
         }
         
         Log.d(LOGTAG, "Constructed full URL: $fullUrl")
