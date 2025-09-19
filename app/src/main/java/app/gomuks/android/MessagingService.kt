@@ -141,7 +141,14 @@ class MessagingService : FirebaseMessagingService() {
     }
 
     private fun downloadAvatar(avatarUrl: String?, imageAuth: String?): Bitmap? {
-        if (avatarUrl.isNullOrEmpty()) return null
+        Log.d(LOGTAG, "downloadAvatar called with:")
+        Log.d(LOGTAG, "  avatarUrl: $avatarUrl")
+        Log.d(LOGTAG, "  imageAuth: $imageAuth")
+        
+        if (avatarUrl.isNullOrEmpty()) {
+            Log.w(LOGTAG, "Avatar URL is null or empty, returning null")
+            return null
+        }
         
         // Construct the full URL with authentication key
         val fullUrl = if (imageAuth != null && avatarUrl.contains("?")) {
@@ -152,25 +159,56 @@ class MessagingService : FirebaseMessagingService() {
             avatarUrl
         }
         
-        Log.d(LOGTAG, "Downloading avatar from: $fullUrl")
+        Log.d(LOGTAG, "Constructed full URL: $fullUrl")
         
         return try {
+            Log.d(LOGTAG, "Creating URL object...")
             val url = URL(fullUrl)
+            Log.d(LOGTAG, "Opening connection...")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
             
             // Add required headers
+            Log.d(LOGTAG, "Setting headers...")
             connection.setRequestProperty("Sec-Fetch-Mode", "no-cors")
             connection.setRequestProperty("Sec-Fetch-Site", "cross-site")
             connection.setRequestProperty("Sec-Fetch-Dest", "image")
             
+            Log.d(LOGTAG, "Connecting...")
+            connection.connect()
+            
+            val responseCode = connection.responseCode
+            Log.d(LOGTAG, "Response code: $responseCode")
+            
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                Log.e(LOGTAG, "HTTP error: $responseCode - ${connection.responseMessage}")
+                connection.disconnect()
+                return null
+            }
+            
+            val contentLength = connection.contentLength
+            Log.d(LOGTAG, "Content length: $contentLength")
+            
+            val contentType = connection.contentType
+            Log.d(LOGTAG, "Content type: $contentType")
+            
+            Log.d(LOGTAG, "Reading input stream...")
             val inputStream: InputStream = connection.inputStream
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
             connection.disconnect()
+            
+            if (bitmap != null) {
+                Log.d(LOGTAG, "Successfully downloaded avatar: ${bitmap.width}x${bitmap.height}")
+            } else {
+                Log.e(LOGTAG, "BitmapFactory.decodeStream returned null")
+            }
+            
             bitmap
         } catch (e: Exception) {
-            Log.e(LOGTAG, "Failed to download avatar from $fullUrl", e)
+            Log.e(LOGTAG, "Exception during avatar download from $fullUrl", e)
+            Log.e(LOGTAG, "Exception type: ${e.javaClass.simpleName}")
+            Log.e(LOGTAG, "Exception message: ${e.message}")
             null
         }
     }
