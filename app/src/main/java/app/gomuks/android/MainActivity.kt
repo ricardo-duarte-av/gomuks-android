@@ -266,33 +266,14 @@ class MainActivity : ComponentActivity() {
             val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
             
-            // Apply system bar insets (status bar and navigation bar)
-            v.setPadding(
-                systemBarsInsets.left,
-                systemBarsInsets.top,
-                systemBarsInsets.right,
-                systemBarsInsets.bottom + imeInsets.bottom
-            )
-            
-            // Add touch interceptor to prevent touches in system bar areas
-            v.setOnTouchListener { _, event ->
-                val x = event.x
-                val y = event.y
-                val width = v.width
-                val height = v.height
-                
-                // Check if touch is in system bar areas
-                val inLeftBar = x < systemBarsInsets.left
-                val inTopBar = y < systemBarsInsets.top
-                val inRightBar = x > width - systemBarsInsets.right
-                val inBottomBar = y > height - systemBarsInsets.bottom - imeInsets.bottom
-                
-                // If touch is in system bar area, consume the event
-                if (inLeftBar || inTopBar || inRightBar || inBottomBar) {
-                    true // Consume the event
-                } else {
-                    false // Let the event pass through
-                }
+            // Use margins instead of padding to properly constrain the view bounds
+            val layoutParams = v.layoutParams as? android.view.ViewGroup.MarginLayoutParams
+            layoutParams?.let { params ->
+                params.leftMargin = systemBarsInsets.left
+                params.topMargin = systemBarsInsets.top
+                params.rightMargin = systemBarsInsets.right
+                params.bottomMargin = systemBarsInsets.bottom + imeInsets.bottom
+                v.layoutParams = params
             }
             
             insets
