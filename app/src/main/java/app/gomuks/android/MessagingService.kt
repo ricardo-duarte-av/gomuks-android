@@ -6,8 +6,12 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.util.Log
+import java.io.InputStream
+import java.net.URL
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.MessagingStyle
@@ -79,11 +83,12 @@ class MessagingService : FirebaseMessagingService() {
     }
 
     private fun pushUserToPerson(data: PushUser): Person {
-        // TODO include avatar
+        val userAvatar = downloadAvatar(data.avatar)
         return Person.Builder()
             .setKey(data.id)
             .setName(data.name)
             .setUri("matrix:u/${data.id.substring(1)}")
+            .setIcon(if (userAvatar != null) IconCompat.createWithBitmap(userAvatar) else null)
             .build()
     }
 
@@ -98,11 +103,19 @@ class MessagingService : FirebaseMessagingService() {
             setData("matrix:roomid/${roomId.substring(1)}".toUri())
         }
         
+        // Download room avatar
+        val roomAvatar = downloadAvatar(data.roomAvatar)
+        val shortcutIcon = if (roomAvatar != null) {
+            IconCompat.createWithBitmap(roomAvatar)
+        } else {
+            IconCompat.createWithResource(this, R.drawable.matrix)
+        }
+        
         // Create shortcut for the room
         val shortcut = ShortcutInfoCompat.Builder(this, roomId)
             .setShortLabel(roomName)
             .setLongLabel("$roomName - ${if (isGroupRoom) "Group Chat" else "Direct Message"}")
-            .setIcon(IconCompat.createWithResource(this, R.drawable.matrix))
+            .setIcon(shortcutIcon)
             .setIntent(roomIntent)
             .setCategories(setOf("android.shortcut.conversation"))
             .build()
@@ -125,6 +138,20 @@ class MessagingService : FirebaseMessagingService() {
         }
     }
 
+    private fun downloadAvatar(avatarUrl: String?): Bitmap? {
+        if (avatarUrl.isNullOrEmpty()) return null
+        
+        return try {
+            val inputStream: InputStream = URL(avatarUrl).openStream()
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+            bitmap
+        } catch (e: Exception) {
+            Log.e(LOGTAG, "Failed to download avatar from $avatarUrl", e)
+            null
+        }
+    }
+
     private fun showMessageNotification(data: PushMessage) {
         // Create or update shortcut for this room
         createOrUpdateRoomShortcut(data)
@@ -133,12 +160,22 @@ class MessagingService : FirebaseMessagingService() {
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifID = data.roomID.hashCode()
         val isGroupRoom = data.roomName != data.sender.name
+        
+        // Download room avatar for the conversation
+        val roomAvatar = downloadAvatar(data.roomAvatar)
+        val conversationIcon = if (roomAvatar != null) {
+            IconCompat.createWithBitmap(roomAvatar)
+        } else {
+            null
+        }
+        
         val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
             MessagingStyle.extractMessagingStyleFromNotification(it.notification)
         } ?: MessagingStyle(pushUserToPerson(data.self)))
             .setConversationTitle(
                 if (isGroupRoom) data.roomName else null
             )
+            .setConversationIcon(conversationIcon)
             .addMessage(MessagingStyle.Message(data.text, data.timestamp, sender))
         
         // Choose channel based on room type and sound preference

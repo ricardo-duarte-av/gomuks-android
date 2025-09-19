@@ -341,10 +341,29 @@ class MainActivity : ComponentActivity() {
             setData("matrix:roomid/${roomId.substring(1)}".toUri())
         }
         
+        // Download room avatar if provided
+        val avatarBitmap = if (!roomAvatar.isNullOrEmpty()) {
+            try {
+                val inputStream: java.io.InputStream = java.net.URL(roomAvatar).openStream()
+                val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                bitmap
+            } catch (e: Exception) {
+                Log.e(LOGTAG, "Failed to download avatar from $roomAvatar", e)
+                null
+            }
+        } else null
+        
+        val shortcutIcon = if (avatarBitmap != null) {
+            IconCompat.createWithBitmap(avatarBitmap)
+        } else {
+            IconCompat.createWithResource(this, R.drawable.matrix)
+        }
+        
         val shortcut = ShortcutInfoCompat.Builder(this, roomId)
             .setShortLabel(roomName)
             .setLongLabel("$roomName - ${if (isGroupRoom) "Group Chat" else "Direct Message"}")
-            .setIcon(IconCompat.createWithResource(this, R.drawable.matrix))
+            .setIcon(shortcutIcon)
             .setIntent(roomIntent)
             .setCategories(setOf("android.shortcut.conversation"))
             .build()
