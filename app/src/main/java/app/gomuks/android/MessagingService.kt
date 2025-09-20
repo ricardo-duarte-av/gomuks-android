@@ -315,21 +315,7 @@ class MessagingService : FirebaseMessagingService() {
         } else {
             null
         }
-        
-        val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
-            MessagingStyle.extractMessagingStyleFromNotification(it.notification)
-        } ?: MessagingStyle(dmPartner ?: pushUserToPerson(data.self, imageAuth)))
-            .setConversationTitle(
-                if (isGroupRoom) data.roomName else null
-            )
-            .addMessage(
-                MessagingStyle.Message(
-                    data.text, 
-                    data.timestamp, 
-                    if (isGroupRoom) sender else null
-                )
-            )
-        
+
         // Use conversation channel for all notifications
         val channelID = "${CONVERSATION_CHANNEL_ID}_${data.roomID}"
         val pendingIntent = PendingIntent.getActivity(
@@ -341,9 +327,9 @@ class MessagingService : FirebaseMessagingService() {
             },
             PendingIntent.FLAG_IMMUTABLE,
         )
+
         val builder = NotificationCompat.Builder(this, channelID)
             .setSmallIcon(R.drawable.matrix)
-            .setStyle(messagingStyle)
             .setWhen(data.timestamp)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
@@ -351,6 +337,35 @@ class MessagingService : FirebaseMessagingService() {
             .setLargeIcon(circularRoomAvatar)  // Use circular room avatar as large icon
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)  // Mark as message category
             .setGroup(data.roomID)  // Group notifications by room
+
+
+        if (!data.image.isNullOrEmpty()) {
+            //This is a image
+            val imageBitmap = downloadAvatar(data.image, imageAuth) 
+            val bigPictureStyle = NotificationCompat.BigPictureStyle()
+                .bigPicture(imageBitmap)
+                .setBigContentTitle(if (isGroupRoom) data.roomName else data.sender.name)
+                .setSummaryText(if (isGroupRoom) data.sender.name else null)
+            builder.setStyle(bigPictureStyle)
+        } else {
+            //Text message
+            val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
+                MessagingStyle.extractMessagingStyleFromNotification(it.notification)
+            } ?: MessagingStyle(dmPartner ?: pushUserToPerson(data.self, imageAuth)))
+                .setConversationTitle(
+                    if (isGroupRoom) data.roomName else null
+                )
+                .addMessage(
+                    MessagingStyle.Message(
+                        data.text, 
+                        data.timestamp, 
+                        if (isGroupRoom) sender else null
+                    )
+                )
+            builder.setStyle(messagingStyle)
+        }
+        
+
         with(NotificationManagerCompat.from(this)) {
             if (ActivityCompat.checkSelfPermission(
                     this@MessagingService,
