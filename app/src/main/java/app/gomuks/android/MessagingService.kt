@@ -318,7 +318,13 @@ class MessagingService : FirebaseMessagingService() {
             .setConversationTitle(
                 if (isGroupRoom) data.roomName else null
             )
-            .addMessage(MessagingStyle.Message(data.text, data.timestamp, sender))
+            .addMessage(
+                MessagingStyle.Message(
+                    data.text, 
+                    data.timestamp, 
+                    if (isGroupRoom) sender else null
+                )
+            )
         
         // Use conversation channel for all notifications
         val channelID = "${CONVERSATION_CHANNEL_ID}_${data.roomID}"
