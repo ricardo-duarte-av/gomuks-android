@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
+import android.app.NotificationChannel
+import android.app.NotificationManager
 
 internal const val SILENT_NOTIFICATION_CHANNEL_ID = "silent_notification"
 internal const val NOISY_NOTIFICATION_CHANNEL_ID = "noisy_notification"
@@ -118,9 +120,31 @@ fun createNotificationChannels(context: Context) {
  */
 fun createConversationChannel(context: Context, roomId: String, roomName: String) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        val notificationManager = NotificationManagerCompat.from(context)
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         
         // Create a unique channel ID for this conversation
+        val conversationChannelId = "${CONVERSATION_CHANNEL_ID}_$roomId"
+        
+        // Create native Android notification channel
+        val channel = NotificationChannel(
+            conversationChannelId,
+            roomName,
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "Notifications for $roomName"
+            enableVibration(true)
+            enableLights(true)
+            lightColor = context.getColor(R.color.primary_color)
+        }
+        
+        // Set conversation ID for Android 11+ conversation features
+        channel.setConversationId(CONVERSATION_CHANNEL_ID, roomId)
+        
+        // Create the channel
+        notificationManager.createNotificationChannel(channel)
+    } else {
+        // For older Android versions, use regular channel
+        val notificationManager = NotificationManagerCompat.from(context)
         val conversationChannelId = "${CONVERSATION_CHANNEL_ID}_$roomId"
         
         val channel = NotificationChannelCompat.Builder(
@@ -134,18 +158,6 @@ fun createConversationChannel(context: Context, roomId: String, roomName: String
             .setLightColor(R.color.primary_color)
             .build()
         
-        // Set conversation ID for Android 11+ conversation features
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                val androidChannel = channel.toAndroidChannel()
-                androidChannel.setConversationId(CONVERSATION_CHANNEL_ID, roomId)
-                notificationManager.createNotificationChannel(androidChannel)
-            } catch (e: Exception) {
-                // Fallback to regular channel creation
-                notificationManager.createNotificationChannel(channel)
-            }
-        } else {
-            notificationManager.createNotificationChannel(channel)
-        }
+        notificationManager.createNotificationChannel(channel)
     }
 }
