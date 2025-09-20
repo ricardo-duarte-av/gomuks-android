@@ -99,7 +99,9 @@ class MessagingService : FirebaseMessagingService() {
         val roomId = data.roomID
         val roomName = data.roomName
         val isGroupRoom = data.roomName != data.sender.name
-        val msgSender = data.sender.name
+        val msgSender = data.sender.id
+
+
         
         // Create intent for the room
         val roomIntent = Intent(this, MainActivity::class.java).apply {
@@ -302,6 +304,8 @@ class MessagingService : FirebaseMessagingService() {
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifID = data.roomID.hashCode()
         val isGroupRoom = data.roomName != data.sender.name
+        val dmPartner = if (!isGroupRoom) pushUserToPerson(data.sender, imageAuth) else null
+
         
         // Download room avatar for the conversation
         val roomAvatar = downloadAvatar(data.roomAvatar, imageAuth)
@@ -314,7 +318,7 @@ class MessagingService : FirebaseMessagingService() {
         
         val messagingStyle = (manager.activeNotifications.lastOrNull { it.id == notifID }?.let {
             MessagingStyle.extractMessagingStyleFromNotification(it.notification)
-        } ?: MessagingStyle(pushUserToPerson(data.self, imageAuth)))
+        } ?: MessagingStyle(dmPartner ?: pushUserToPerson(data.self, imageAuth)))
             .setConversationTitle(
                 if (isGroupRoom) data.roomName else null
             )
