@@ -36,6 +36,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -324,6 +329,61 @@ class MainActivity : ComponentActivity() {
         // For some reason it only loads after the first padding change
         // We need to preserve system bar insets during this reset
         ViewCompat.requestApplyInsets(view)
+    }
+
+    /**
+     * Utility function to create or update a room shortcut for per-room notification settings
+     * This can be called from the web app when room information changes
+     */
+    fun updateRoomShortcut(roomId: String, roomName: String, isGroupRoom: Boolean, roomAvatar: String? = null) {
+        val roomIntent = Intent(this, MainActivity::class.java).apply {
+            setAction(Intent.ACTION_VIEW)
+            setData("matrix:roomid/${roomId.substring(1)}".toUri())
+        }
+        
+        // Download room avatar if provided
+        val avatarBitmap = if (!roomAvatar.isNullOrEmpty()) {
+            try {
+                val url = java.net.URL(roomAvatar)
+                val connection = url.openConnection() as java.net.HttpURLConnection
+                connection.requestMethod = "GET"
+                
+                // Add required headers
+                connection.setRequestProperty("Sec-Fetch-Mode", "no-cors")
+                connection.setRequestProperty("Sec-Fetch-Site", "cross-site")
+                connection.setRequestProperty("Sec-Fetch-Dest", "image")
+                
+                val inputStream: java.io.InputStream = connection.inputStream
+                val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                connection.disconnect()
+                bitmap
+            } catch (e: Exception) {
+                Log.e(LOGTAG, "Failed to download avatar from $roomAvatar", e)
+                null
+            }
+        } else null
+        
+        val shortcutIcon = if (avatarBitmap != null) {
+            IconCompat.createWithBitmap(avatarBitmap)
+        } else {
+            IconCompat.createWithResource(this, R.drawable.matrix)
+        }
+        
+        val shortcut = ShortcutInfoCompat.Builder(this, roomId)
+            .setShortLabel(roomName)
+            .setLongLabel("$roomName - ${if (isGroupRoom) "Group Chat" else "Direct Message"}")
+            .setIcon(shortcutIcon)
+            .setIntent(roomIntent)
+            .setCategories(setOf("android.shortcut.conversation"))
+            .build()
+        
+        try {
+            ShortcutManagerCompat.addDynamicShortcuts(this, listOf(shortcut))
+            Log.d(LOGTAG, "Updated shortcut for room: $roomName")
+        } catch (e: Exception) {
+            Log.e(LOGTAG, "Failed to update shortcut for room: $roomName", e)
+        }
     }
 
     @Composable

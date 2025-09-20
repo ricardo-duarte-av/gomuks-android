@@ -20,6 +20,11 @@
 
     <string name="notification_channel_silent">Silent notifications</string>
     <string name="notification_channel_noisy">Noisy notifications</string>
+    <string name="notification_channel_dm_silent">Direct Messages (Silent)</string>
+    <string name="notification_channel_dm_noisy">Direct Messages (Noisy)</string>
+    <string name="notification_channel_group_silent">Group Chats (Silent)</string>
+    <string name="notification_channel_group_noisy">Group Chats (Noisy)</string>
+    <string name="notification_channel_conversation">Conversations</string>
 
     <!-- BasicGeckoViewPrompt strings -->
     <string name="username">Username</string>
