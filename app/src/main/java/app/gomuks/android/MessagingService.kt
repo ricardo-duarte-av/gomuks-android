@@ -121,6 +121,7 @@ class MessagingService : FirebaseMessagingService() {
             .setIcon(shortcutIcon)
             .setIntent(roomIntent)
             .setCategories(setOf("android.shortcut.conversation"))
+            .setLongLived(true)
             .build()
         
         // Add or update the shortcut
@@ -128,7 +129,8 @@ class MessagingService : FirebaseMessagingService() {
             // Remove any previous shortcut with the same id (for icon update)
             ShortcutManagerCompat.removeDynamicShortcuts(this, listOf(roomId))
             // Add the updated shortcut
-            ShortcutManagerCompat.addDynamicShortcuts(this, listOf(shortcut))
+            //ShortcutManagerCompat.addDynamicShortcuts(this, listOf(shortcut))
+            ShortcutManagerCompat.pushDynamicShortcut(this, shortcut)
             Log.d(LOGTAG, "Created/updated shortcut for room: $roomName")
         } catch (e: Exception) {
             Log.e(LOGTAG, "Failed to create shortcut for room: $roomName", e)
