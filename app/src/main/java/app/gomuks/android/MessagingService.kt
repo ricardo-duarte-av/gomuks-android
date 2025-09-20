@@ -324,7 +324,7 @@ class MessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_IMMUTABLE,
         )
         val builder = NotificationCompat.Builder(this, channelID)
-            .setSmallIcon(IconCompat.createWithBitmap(composeSmallIcon(this, circularRoomAvatar)))
+            .setSmallIcon(R.mipmap.ic_launcher_round)
             .setStyle(messagingStyle)
             .setWhen(data.timestamp)
             .setAutoCancel(true)
