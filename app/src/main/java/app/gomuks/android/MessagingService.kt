@@ -346,7 +346,7 @@ class MessagingService : FirebaseMessagingService() {
             val bigPictureStyle = NotificationCompat.BigPictureStyle()
                 .bigPicture(imageBitmap)
                 .setBigContentTitle(if (isGroupRoom) data.roomName else data.sender.name)
-                .setSummaryText(data.text)
+                .setSummaryText("${data.sender.name}: ${data.text}")
             builder.setStyle(bigPictureStyle)
         } else {
             //Text message
