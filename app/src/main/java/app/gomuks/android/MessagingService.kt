@@ -246,6 +246,43 @@ class MessagingService : FirebaseMessagingService() {
         return output
     }
 
+    private fun getLauncherIconBitmap(context: Context): Bitmap? {
+        // Try to load the best available ic_launcher_round.webp
+        val densities = listOf("xxxhdpi", "xxhdpi", "xhdpi", "hdpi", "mdpi")
+        for (density in densities) {
+            val resId = context.resources.getIdentifier(
+                "ic_launcher_round",
+                "mipmap",
+                context.packageName
+            )
+            if (resId != 0) {
+                return BitmapFactory.decodeResource(context.resources, resId)
+            }
+        }
+        return null
+    }
+
+    private fun composeSmallIcon(context: Context, roomAvatar: Bitmap?): Bitmap {
+        val launcherIcon = getLauncherIconBitmap(context)
+        if (launcherIcon == null) {
+            // fallback: just use the avatar or a blank bitmap
+            return roomAvatar ?: Bitmap.createBitmap(96, 96, Bitmap.Config.ARGB_8888)
+        }
+        val size = launcherIcon.width
+        val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(output)
+        canvas.drawBitmap(launcherIcon, 0f, 0f, null)
+        if (roomAvatar != null) {
+            val badgeSize = (size * 0.5).toInt()
+            val badge = getCircularBitmap(roomAvatar)
+            val left = size - badgeSize - (size * 0.08).toInt()
+            val top = size - badgeSize - (size * 0.08).toInt()
+            val rect = android.graphics.Rect(left, top, left + badgeSize, top + badgeSize)
+            canvas.drawBitmap(badge!!, null, rect, null)
+        }
+        return output
+    }
+
     private fun showMessageNotification(data: PushMessage, imageAuth: String?) {
         // Create or update shortcut for this room
         createOrUpdateRoomShortcut(data, imageAuth)
@@ -287,7 +324,7 @@ class MessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_IMMUTABLE,
         )
         val builder = NotificationCompat.Builder(this, channelID)
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(IconCompat.createWithBitmap(composeSmallIcon(this, circularRoomAvatar)))
             .setStyle(messagingStyle)
             .setWhen(data.timestamp)
             .setAutoCancel(true)
