@@ -90,7 +90,8 @@ class MessagingService : FirebaseMessagingService() {
             .setKey(data.id)
             .setName(data.name)
             .setUri("matrix:u/${data.id.substring(1)}")
-            .setIcon(if (userAvatar != null) IconCompat.createWithBitmap(userAvatar) else null)
+            //.setIcon(if (userAvatar != null) IconCompat.createWithBitmap(userAvatar) else null)
+            .setIcon(if (userAvatar != null) IconCompat.createWithAdaptiveBitmap(userAvatar) else null)
             .build()
     }
 
