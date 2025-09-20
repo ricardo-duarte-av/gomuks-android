@@ -122,6 +122,7 @@ class MessagingService : FirebaseMessagingService() {
             .setIcon(shortcutIcon)
             .setIntent(roomIntent)
             .setCategories(setOf("android.shortcut.conversation"))
+            .setIsConversation(true)
             .setLongLived(true)
             .build()
         
@@ -330,7 +331,7 @@ class MessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_IMMUTABLE,
         )
         val builder = NotificationCompat.Builder(this, channelID)
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(R.drawable.matrix)
             .setStyle(messagingStyle)
             .setWhen(data.timestamp)
             .setAutoCancel(true)
