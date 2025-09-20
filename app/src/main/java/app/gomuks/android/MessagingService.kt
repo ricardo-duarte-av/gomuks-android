@@ -122,7 +122,7 @@ class MessagingService : FirebaseMessagingService() {
             .setIcon(shortcutIcon)
             .setIntent(roomIntent)
             .setCategories(setOf("android.shortcut.conversation"))
-            .setIsConversation(true)
+            .setIsConversation()
             .setLongLived(true)
             .build()
         
