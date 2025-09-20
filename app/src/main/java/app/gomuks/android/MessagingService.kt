@@ -338,8 +338,9 @@ class MessagingService : FirebaseMessagingService() {
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)  // Mark as message category
             .setGroup(data.roomID)  // Group notifications by room
 
+        val hasImage = !data.image.isNullOrEmpty() && !data.image.contains("encrypted=true")
 
-        if (!data.image.isNullOrEmpty()) {
+        if (hasImage) {
             //This is a image
             val imageBitmap = downloadAvatar(data.image, imageAuth) 
             val bigPictureStyle = NotificationCompat.BigPictureStyle()
