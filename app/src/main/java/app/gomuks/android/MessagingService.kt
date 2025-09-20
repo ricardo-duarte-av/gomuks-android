@@ -117,7 +117,7 @@ class MessagingService : FirebaseMessagingService() {
         
         // Create shortcut for the room
         val shortcut = ShortcutInfoCompat.Builder(this, roomId)
-            .setShortLabel(roomName)
+            .setShortLabel("${if (isGroupRoom) $roomName else ""}")
             .setLongLabel("$roomName ${if (isGroupRoom) "" else " (💬)"}")
             .setIcon(shortcutIcon)
             .setIntent(roomIntent)
