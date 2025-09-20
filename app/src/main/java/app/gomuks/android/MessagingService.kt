@@ -232,6 +232,9 @@ class MessagingService : FirebaseMessagingService() {
         // Create or update shortcut for this room
         createOrUpdateRoomShortcut(data, imageAuth)
         
+        // Create conversation channel for this room
+        createConversationChannel(this, data.roomID, data.roomName)
+        
         val sender = pushUserToPerson(data.sender, imageAuth)
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifID = data.roomID.hashCode()
@@ -253,14 +256,8 @@ class MessagingService : FirebaseMessagingService() {
             )
             .addMessage(MessagingStyle.Message(data.text, data.timestamp, sender))
         
-        // Choose channel based on room type and sound preference
-        val channelID = when {
-            isGroupRoom && data.sound -> GROUP_NOISY_NOTIFICATION_CHANNEL_ID
-            isGroupRoom && !data.sound -> GROUP_SILENT_NOTIFICATION_CHANNEL_ID
-            !isGroupRoom && data.sound -> DM_NOISY_NOTIFICATION_CHANNEL_ID
-            !isGroupRoom && !data.sound -> DM_SILENT_NOTIFICATION_CHANNEL_ID
-            else -> if (data.sound) NOISY_NOTIFICATION_CHANNEL_ID else SILENT_NOTIFICATION_CHANNEL_ID
-        }
+        // Use conversation channel for all notifications
+        val channelID = "${CONVERSATION_CHANNEL_ID}_${data.roomID}"
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
