@@ -125,6 +125,9 @@ class MessagingService : FirebaseMessagingService() {
         
         // Add or update the shortcut
         try {
+            // Remove any previous shortcut with the same id (for icon update)
+            ShortcutManagerCompat.removeDynamicShortcuts(this, listOf(roomId))
+            // Add the updated shortcut
             ShortcutManagerCompat.addDynamicShortcuts(this, listOf(shortcut))
             Log.d(LOGTAG, "Created/updated shortcut for room: $roomName")
         } catch (e: Exception) {
