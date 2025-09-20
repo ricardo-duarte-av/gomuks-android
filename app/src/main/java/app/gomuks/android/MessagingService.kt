@@ -107,8 +107,9 @@ class MessagingService : FirebaseMessagingService() {
         
         // Download room avatar with authentication
         val roomAvatar = downloadAvatar(data.roomAvatar, imageAuth)
-        val shortcutIcon = if (roomAvatar != null) {
-            IconCompat.createWithBitmap(roomAvatar)
+        val circularRoomAvatar = getCircularBitmap(roomAvatar)
+        val shortcutIcon = if (circularRoomAvatar != null) {
+            IconCompat.createWithBitmap(circularRoomAvatar)
         } else {
             IconCompat.createWithResource(this, R.drawable.matrix)
         }
@@ -228,6 +229,23 @@ class MessagingService : FirebaseMessagingService() {
         }
     }
 
+    private fun getCircularBitmap(bitmap: Bitmap?): Bitmap? {
+        if (bitmap == null) return null
+        val size = Math.min(bitmap.width, bitmap.height)
+        val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(output)
+        val paint = android.graphics.Paint()
+        val rect = android.graphics.Rect(0, 0, size, size)
+        val rectF = android.graphics.RectF(rect)
+        val radius = size / 2f
+        paint.isAntiAlias = true
+        canvas.drawARGB(0, 0, 0, 0)
+        canvas.drawCircle(radius, radius, radius, paint)
+        paint.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(bitmap, null, rect, paint)
+        return output
+    }
+
     private fun showMessageNotification(data: PushMessage, imageAuth: String?) {
         // Create or update shortcut for this room
         createOrUpdateRoomShortcut(data, imageAuth)
@@ -242,8 +260,9 @@ class MessagingService : FirebaseMessagingService() {
         
         // Download room avatar for the conversation
         val roomAvatar = downloadAvatar(data.roomAvatar, imageAuth)
-        val conversationIcon = if (roomAvatar != null) {
-            IconCompat.createWithBitmap(roomAvatar)
+        val circularRoomAvatar = getCircularBitmap(roomAvatar)
+        val conversationIcon = if (circularRoomAvatar != null) {
+            IconCompat.createWithBitmap(circularRoomAvatar)
         } else {
             null
         }
@@ -268,13 +287,13 @@ class MessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_IMMUTABLE,
         )
         val builder = NotificationCompat.Builder(this, channelID)
-            .setSmallIcon(R.drawable.matrix)
+            .setSmallIcon(R.mipmap.ic_launcher_round)
             .setStyle(messagingStyle)
             .setWhen(data.timestamp)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setShortcutId(data.roomID)  // Link to the room shortcut for per-room settings
-            .setLargeIcon(roomAvatar)  // Use room avatar as large icon
+            .setLargeIcon(circularRoomAvatar)  // Use circular room avatar as large icon
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)  // Mark as message category
             .setGroup(data.roomID)  // Group notifications by room
         with(NotificationManagerCompat.from(this)) {
