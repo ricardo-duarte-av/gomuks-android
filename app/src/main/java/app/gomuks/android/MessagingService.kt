@@ -99,6 +99,7 @@ class MessagingService : FirebaseMessagingService() {
         val roomId = data.roomID
         val roomName = data.roomName
         val isGroupRoom = data.roomName != data.sender.name
+        val msgSender = data.sender.name
         
         // Create intent for the room
         val roomIntent = Intent(this, MainActivity::class.java).apply {
@@ -117,7 +118,7 @@ class MessagingService : FirebaseMessagingService() {
         
         // Create shortcut for the room
         val shortcut = ShortcutInfoCompat.Builder(this, roomId)
-            .setShortLabel("${if (isGroupRoom) roomName else ""}")
+            .setShortLabel("${if (isGroupRoom) roomName else msgSender}")
             .setLongLabel("$roomName ${if (isGroupRoom) "" else " (💬)"}")
             .setIcon(shortcutIcon)
             .setIntent(roomIntent)
