@@ -277,7 +277,7 @@ class MainActivity : ComponentActivity() {
                 params.leftMargin = systemBarsInsets.left
                 params.topMargin = systemBarsInsets.top
                 params.rightMargin = systemBarsInsets.right
-                params.bottomMargin = systemBarsInsets.bottom + imeInsets.bottom
+                params.bottomMargin = maxOf(systemBarsInsets.bottom, imeInsets.bottom)
                 v.layoutParams = params
             }
             
